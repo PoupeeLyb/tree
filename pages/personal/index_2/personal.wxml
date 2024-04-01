@@ -1,0 +1,60 @@
+<view class="container">
+  <!--背景-->
+  <view class="bg-content">
+    <image class="bg" src="/image/v2/bg.png"></image>
+    </view>
+    <view class="avatar-container" >
+      <image class="avatar" src='{{userAvatarUrl}}'></image>
+      <image class="header-avatar-border" src="/image/v2/border.png"></image>
+    </view>
+</view>
+<view class="nickname">{{username}}</view>
+    <!--个人信息-->
+    <view class="user-info">
+      <view class="fans"  bindtap="openFollowList" data-t="2">
+        <view>{{user.fans_num}}</view>
+        <view>粉丝</view>
+      </view>
+      <view class="follow" bindtap="openFollowList" data-t="1">
+        <view>{{user.follow_num}}</view>
+        <view>关注</view>
+      </view>
+    </view>
+
+    <!-- 步数信息 -->
+    <view class="user-info-content">
+      <view class="info-top">
+        <view class="today-step user-info-item">
+          <view class="user-info-image"><view class="image-content p3"><image src="/image/v2/p3.png"></image></view></view>
+          <view class="user-info-data">
+            <view class="user-info-flag">帖子动态</view>
+            <view class="user-info-word">{{user.posts}}</view>
+          </view>
+        </view>
+        <view class="today-rand user-info-item">
+          <view class="user-info-image"><view class="image-content p4"><image src="/image/v2/p4.png"></image></view></view>
+          <view class="user-info-data">
+            <view class="user-info-flag">打卡天数</view>
+            <view class="user-info-word">{{user.loginDays}}</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 消息盒子 -->
+    <view class="inbox-content" bindtap="openMessage">
+      <view class="inbox-count" wx:if="{{newLetterNumber != 0}}"><view>{{newLetterNumber}}</view></view>
+      <image src="/image/v2/personal-poster.png"></image>
+    </view>
+
+    <!-- 输入框 -->
+    <view class='comment-input-container' wx:if="{{showCommentInput}}">
+    <textarea placeholder="评论" 
+              auto-focus
+              maxlength="1024"
+              cursor-spacing="15"
+              fixed="true"
+              auto-height 
+              bindinput='getCommentContent'/>
+    <view class='send-button' bindtap='sendComment'><view>发送</view></view>
+  </view>

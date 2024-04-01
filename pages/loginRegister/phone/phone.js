@@ -1,0 +1,103 @@
+// pages/phone/phone.js
+Page({
+
+  /**
+   * 页面的初始数据
+   */
+  data: {
+    nextStepBtnState:true,
+    iconDecide:false
+  },
+  phoneNumberInput:function(data){
+    var temp=data.detail.value;
+    var length=data.detail.cursor;
+      if(length==11&&this.data.iconDecide==true){
+      this.setData({
+        nextStepBtnState:false
+      })
+    }
+    else{
+      this.setData({
+        nextStepBtnState:true
+      })
+    }
+  },
+  nextStep:function(){
+    wx.redirectTo({
+      url: '../company/company',
+      success:function (res) {
+        console.log(res);
+      },
+      fail:function () {
+        
+      },
+      complete:function () {
+        
+      },
+    })
+  },
+  /**
+   * 生命周期函数--监听页面加载
+   */
+  onLoad(options) {
+    console.log(options.decide)
+    if(options.decide=='true'){
+     this.setData({
+      iconDecide:true
+     })
+    }
+    console.log(this.data.iconDecide)
+   wx.setNavigationBarTitle({
+     title: '手机号注册',
+   })
+  },
+
+  /**
+   * 生命周期函数--监听页面初次渲染完成
+   */
+  onReady() {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面显示
+   */
+  onShow() {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面隐藏
+   */
+  onHide() {
+
+  },
+
+  /**
+   * 生命周期函数--监听页面卸载
+   */
+  onUnload() {
+
+  },
+
+  /**
+   * 页面相关事件处理函数--监听用户下拉动作
+   */
+  onPullDownRefresh() {
+
+  },
+
+  /**
+   * 页面上拉触底事件的处理函数
+   */
+  onReachBottom() {
+
+  },
+
+  /**
+   * 用户点击右上角分享
+   */
+  onShareAppMessage() {
+
+  }
+})

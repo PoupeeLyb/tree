@@ -1,0 +1,68 @@
+<!--pages/company/company.wxml-->
+,<form bindsubmit="formSubmit">
+  <!-- 头像 -->
+  <scroll-view class="scrollarea" scroll-y type="list">
+    <view class="userinfo">
+      <block wx:if="{{canIUseNicknameComp&&!hasUserInfo}}">
+        <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+          <image class="avatar" src="{{userAvatarUrl}}"></image>
+        </button>
+      </block>
+      <block wx:elif="{{!hasUserInfo}}">
+        <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
+        <view wx:else> 请使用2.10.4及以上版本基础库 </view>
+      </block>
+    </view>
+</scroll-view>
+<!-- 用户名 -->
+  <view class="item">
+  <input type="text" name='username' placeholder="请输入用户名" bindinput="registerUserBlur" />
+  <view class="error" wx:if="{{userDecide==false}}"> 请输入用户名</view>
+  <view wx:if="{{userDecide==1}}">
+<icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
+  </view>
+  <view class="error" wx:if="{{userDecide==2}}"> 用户名已存在</view>
+  </view>
+<!--  密码   -->
+<view class="item">
+  <input type="text" name='password' placeholder="请输入6到20位密码" bindinput="registerPasswordBlur" />
+  <view class="error" wx:if="{{passwordDecide==false}}"> 请输入密码</view>
+  <view wx:if="{{passwordDecide==1}}">
+<icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
+  </view>
+  <view class="error" wx:if="{{passwordDecide==2}}"> 密码不符合格式</view>
+  </view>
+<!--  确认密码    -->
+<view class="item">
+  <input type="text" name='passwordAgain' placeholder="请再次输入密码" bindinput="registerPasswordAgainBlur" />
+  <view class="error" wx:if="{{passwordAgainDecide==false}}"> 请再次输入密码</view>
+  <view wx:if="{{passwordAgainDecide==1}}">
+<icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
+  </view>
+  <view class="error" wx:if="{{passwordAgainDecide==2}}"> 密码与上面不同</view>
+  </view>
+<!-- 输入手机号 -->
+<view class="item">
+  <input type="text" name='phoneNumber' placeholder="请输入手机号" bindinput="registerPhoneBlur" />
+<view class="error" wx:if="{{phoneDecide==false}}"> 请输入手机号</view>
+  <view wx:if="{{phoneDecide==1}}">
+<icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
+  </view>
+  <view class="error" wx:if="{{phoneDecide==2}}"> 手机号格式错误</view>
+</view>
+<!-- 同意协议 -->
+<view class="agreement">
+  <view wx:if="{{iconDecide==true}}">
+<icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
+  </view>
+  <view wx:if="{{iconDecide==false}}">
+  <icon type="clear" size="18"  bind:tap="agreementBind"  ></icon>
+  </view>
+  <view class="agree">同意</view>
+  <view class="agreecontent">
+<navigator url="../agreement/agreement?title=注册协议">用户注册协议</navigator>
+  </view>
+</view>
+<!-- 注册 -->
+<button  type="primary" bind:tap="register" form-type="submit" style="width: 90%;  " >注册</button>
+</form>

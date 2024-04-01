@@ -1,0 +1,5 @@
+<!--pages/agreement/agreement.wxml-->
+<view class='title' >请遵守以下规则</view>
+<view class="content"> 1.不应该恶意攻击他人，发表不恰当言论</view>
+<view class="content"> 2.一个人最多拥有一个账号</view>
+<button class="buttonstyle" type="primary" bind:tap="redirectTo" >同意</button>

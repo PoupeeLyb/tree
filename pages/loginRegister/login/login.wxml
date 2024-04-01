@@ -1,0 +1,33 @@
+<!--pages/login/login.wxml-->
+<view class="content">
+<!-- 用户名 -->
+ <view class="username">
+  <view class="title">用户名:</view>
+  <view class="text">
+   <input type="text" bindinput="usernameInput" placeholder="用户名/邮箱/手机号"/>
+  </view>
+ </view>
+<!-- 分隔线 -->
+ <view class="hr"></view>
+<!-- 密码 -->
+ <view class="username">
+  <view class="title">密码:</view>
+  <view class="text">
+   <input type="text"  bindinput="passwordInput" placeholder="请输入密码"/>
+  </view>
+ </view>
+ <!-- 登录按钮 -->
+ <button type="primary" class="login" disabled="{{loginBtnState}}" bind:tap="login">登录</button>
+ <!-- 注册导航 -->
+ <view class="register">
+ <!-- 手机号注册 -->
+  <view>
+   <navigator url="../agreement/agreement?用户注册协议" open-type="navigate">手机号注册</navigator>
+  </view>
+
+<!-- 找回密码 -->
+  <view>
+   <navigator url="../findkey/findkey" open-type="navigate">找回密码</navigator>
+  </view>
+ </view>
+</view>

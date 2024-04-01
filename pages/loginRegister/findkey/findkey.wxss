@@ -1,0 +1,27 @@
+/* pages/findkey/findkey.wxss */
+form{
+  width: 100%;
+  background-color: black;
+ }
+ .item{
+   margin: 0 auto;
+   border:2rpx solid rgba(119, 218, 243, 0.89);
+   width: 90%;
+   height: 70rpx;
+   font-size: 40rpx;
+   margin-top: 40rpx;
+   margin-bottom: 40rpx;
+   border-radius: 10rpx;
+ }
+ .item input{
+   font-size: 35rpx;
+   padding-top: 15rpx;
+   padding-left: 20rpx;
+   justify-self: start;
+ }
+ .error{
+  color: red;
+  margin-top: 10px;
+  font-size: 15px;
+  margin-left: 20px;
+}

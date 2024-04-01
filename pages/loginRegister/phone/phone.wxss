@@ -1,0 +1,33 @@
+/* pages/phone/phone.wxss */
+.content{
+  margin-top: 20rpx;
+}
+.phoneNumber{
+border:solid #cccccc;
+width: 90%;
+margin: 0 auto;
+height: 100rpx;
+display: flex;
+flex-direction: row;
+}
+.phoneNumber view{
+  margin-top: 30rpx;
+  margin-left: 40rpx;
+  font-weight: bold;
+}
+.agreement{
+margin-top: 30rpx;
+margin-left: 30rpx;
+display: flex;
+flex-direction: row;
+}
+.agree{
+ margin-left: 20rpx;
+ font-weight: lighter;
+}
+.agreecontent{
+  font-weight: bold;
+}
+.nextStepBtn{
+   margin-top: 30rpx;
+}

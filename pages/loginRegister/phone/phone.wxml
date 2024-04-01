@@ -1,0 +1,25 @@
+<!--pages/phone/phone.wxml-->
+<!-- <text>pages/phone/phone.wxml</text> -->
+<view class="content">
+<view class="phoneNumber">
+ <view>+86</view>
+ <view>
+ <input type="text" bindinput="phoneNumberInput" placeholder="请输入手机号" maxlength="11"/>
+</view>
+</view>
+<!-- 同意协议 -->
+<view class="agreement">
+  <view wx:if="{{iconDecide==true}}">
+<icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
+</view>
+<view wx:if="{{iconDecide==false}}">
+  <icon type="clear" size="18"  bind:tap="agreementBind"  ></icon>
+</view>
+<view class="agree">同意</view>
+<view class="agreecontent">
+<navigator url="../agreement/agreement?title=注册协议">用户注册协议</navigator>
+</view>
+</view>
+</view>
+<!-- 下一步 -->
+<button class="nextStepBtn" type="primary" disabled="{{nextStepBtnState}}" bind:tap="nextStep">下一步</button>

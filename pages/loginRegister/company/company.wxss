@@ -1,0 +1,95 @@
+/* pages/company/company.wxss */
+/**index.wxss**/
+.scrollarea {
+  flex: 1;
+  overflow-y: hidden;
+}
+.userinfo {
+  display: flex;
+  flex-direction: column;
+  margin-top: 50rpx;
+  margin-left: 50rpx;
+  align-items: center;
+  color: #aaa;
+  width: 80%;
+}
+.avatar-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  padding: 0;
+  width: 100px !important;
+  height :100px;
+  border-radius: 8px;
+}
+
+.avatar {
+  display: block;
+  width: 100px;
+  height: 100px;
+}
+form{
+ width: 100%;
+ background-color:white;
+}
+.item{
+  margin: 0 auto;
+  border:2rpx solid rgba(119, 218, 243, 0.89);
+  width: 90%;
+  height: 70rpx;
+  font-size: 40rpx;
+  margin-top: 40rpx;
+  border-radius: 10rpx;
+}
+.item input{
+  font-size: 35rpx;
+  padding-top: 15rpx;
+  padding-left: 20rpx;
+  justify-self: start;
+}
+.phone{
+  display: flex;
+  flex-direction: row;
+  margin: 0 auto;
+  width: 90%;
+}
+.registerPhone{
+  margin: 0 auto;
+  border:2rpx solid rgba(119, 218, 243, 0.89);
+  width: 50%;
+  height:70rpx;
+  font-size: 40rpx;
+  margin-top: 40rpx;
+  border-radius: 10rpx;
+}
+.registerPhone input{
+  font-size: 35rpx;
+  padding-top: 15rpx;
+  padding-left: 20rpx;
+  justify-self: start;
+}
+.button-style{
+  width: 40%;
+  height:70rpx;
+  margin-top: 40rpx;
+  border-radius: 10rpx;
+}
+.agreement{
+  margin-top: 30rpx;
+  margin-left: 30rpx;
+  display: flex;
+  flex-direction: row;
+  }
+.agree{
+  margin-left: 20rpx;
+  font-weight: lighter;
+ }
+ .agreecontent{
+   font-weight: bold;
+ }
+ .error{
+   color: red;
+   margin-top: 10px;
+   font-size: 15px;
+   margin-left: 20px;
+ }
