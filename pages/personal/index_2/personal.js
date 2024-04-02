@@ -224,9 +224,9 @@ Page({
   },
 
   onShow: function () {
-    console.log(app.globalData.USERAVATARURL);
     this.setData({
-      userAvatarUrl:app.globalData.USERAVATARURL
+      userAvatarUrl:app.globalData.USERAVATARURL,
+      username:app.globalData.USERNAME
     })
   },
 

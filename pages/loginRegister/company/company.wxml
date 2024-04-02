@@ -7,6 +7,10 @@
         <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
           <image class="avatar" src="{{userAvatarUrl}}"></image>
         </button>
+      <view class="avatarUrlError"  wx:if="{{userAvatarUrlDecide==false}}"> 请切换头像</view>
+        <view wx:if="{{userAvatarUrlDecide==1}}">
+        <icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
+       </view>
       </block>
       <block wx:elif="{{!hasUserInfo}}">
         <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>

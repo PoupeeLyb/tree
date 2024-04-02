@@ -12,6 +12,7 @@ Page({
     canIUseGetUserProfile: wx.canIUse('getUserProfile'),
     canIUseNicknameComp: wx.canIUse('input.type.nickname'),
     getSecurityCodeState:true,
+    userAvatarUrlDecide:false,
     userDecide:false,
     iconDecide:false,
     password:{},
@@ -26,6 +27,16 @@ Page({
       userAvatarUrl: avatarUrl,
       hasUserInfo: this.data.username &&avatarUrl && avatarUrl !== defaultAvatarUrl,
     })
+    if(avatarUrl==defaultAvatarUrl){
+      this.setData({
+        userAvatarUrlDecide:false
+      })
+    }
+      else{
+        this.setData({
+          userAvatarUrlDecide:1
+        })
+      }
   },
   getUserProfile(e) {
     // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认，开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
@@ -148,7 +159,7 @@ Page({
         })
       }
       else{
-        if(this.data.iconDecide==true&&this.data.userAvatarUrl!=defaultAvatarUrl&&this.data.passwordDecide==1&&this.data.passwordDecide==1&&this.data.phoneDecide==1&&this.data.userDecide==1){
+        if(this.data.iconDecide==true&&this.data.userAvatarUrlDecide==1&&this.data.passwordDecide==1&&this.data.passwordDecide==1&&this.data.phoneDecide==1&&this.data.userDecide==1){
         arr.push(objs);
         wx.setStorageSync('users', arr);
         wx.showToast({

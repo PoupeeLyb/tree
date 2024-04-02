@@ -15,93 +15,51 @@
         <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
           <image class="avatar" src="{{userAvatarUrl}}"></image>
         </button>
+      <view class="avatarUrlError"  wx:if="{{userAvatarUrlDecide==false}}"> 请切换头像</view>
+        <view wx:if="{{userAvatarUrlDecide==1}}">
+        <icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
+       </view>
+  <view class="avatarUrlError" wx:if="{{userAvatarUrlDecidE==2}}"> 头像与原来相同</view>
     </view>
 </scroll-view>
       <view class="set-save"><view class="set-save-button" bindtap="userAvatarUrlSave"><view>保存修改</view></view></view>
-    </view>
   </view>
-
-    <!-- 留言列表 -->
-    <view class="friend-container" wx:if="{{selectPoster==3}}">
-      <view class="container-content">
-        <view class="content-item" 
-              wx:for="{{friends}}" 
-              wx:key="id"
-              data-obj="{{item.friend_id}}"
-              bindtap='letter'>
-          <view class="user-info">
-              <image class="avatar-border" src="/image/v2/border.png"></image>
-              <image class="avatar" src="{{item.friend.avatar}}"></image>
-            <view class="user-name">
-              <view class="user-nickname">{{item.friend.nickname}}</view>
-              <view class="date-time">{{item.created_at}}</view>
-            </view>
-          </view>
-          <view class="message-count" wx:if="{{item.newMessageNumber > 0}}">{{item.newMessageNumber}}</view>
-        </view> 
-      </view>
-    </view>
-
-    <!-- 消息列表 -->
-    <view class='message-item' wx:if="{{selectPoster==1}}" wx:for="{{messageList}}" wx:key="id">
-          <view class='item' 
-                bindtap="opendDetail" 
-                data-parent="{{item.parentObj}}"
-                data-pobj="{{item.parentObj.obj_id}}"
-                data-type="{{item.obj.obj_type}}"
-                data-chat="{{item.obj_type}}"
-                data-uid="{{item.from_id}}"
-                data-objid="{{item.obj_id}}"
-                data-id="{{item.obj.obj_id}}">
-            <view class='left'>
-              <view class="avatar-view">
-                <image class="message-avatar-border" src="/image/v2/border.png"></image>
-                <image class="avatar" src='{{item.from_user.avatar}}'></image>
-              </view>
-            </view>
-            <view class='content'>
-              <view class='username'>
-                {{item.from_user.nickname}}
-              </view>
-              <view class='message' 
-                    wx:if="{{item.action_type == 1 && item.parentObj != null}}">
-                    {{item.obj.content}}</view>
-                    
-              <view class='message' 
-                    wx:if="{{item.obj_type == 6}}">
-                    {{item.content}}</view>
-
-              <view class='message' 
-                    wx:if="{{item.obj_type == 7}}">
-                    {{item.content}}</view>
-
-              <view class='delete-message' 
-                    wx:if="{{item.parentObj == null && item.obj_type != 6}}">
-                    该消息已被删除
-              </view>
-                    
-              <view class='praise' 
-              wx:if="{{item.action_type == 2 && item.parentObj != null}}">
-                <image src='/image/make_praise.png'></image>
-              </view>
-              <view class='created_at'>{{item.created_at}}</view>
-            </view>
-            <view class='right'>
-              <view class='image' 
-                    wx:if="{{item.parentObj.attachments.length != 0}}">
-                    <image mode='aspectFill' 
-                    src='{{baseImageUrl+item.parentObj.attachments[0]}}'></image>
-                    </view>
-              <view class='content' 
-                    wx:if="{{item.parentObj.attachments.length == 0}}">
-                      {{item.parentObj.content}} 
-                    </view>
-            </view>
-          </view>
-    </view>
-  <view class="call-server" bindtap='openSugesstion'>客服</view>
-
-  <get-more-loading wx:if="{{showGeMoreLoadin}}"></get-more-loading>
-  <not-more wx:if="{{notDataTips}}"></not-more>
-
+<!-- 修改昵称 -->
+<view class="settle-info" wx:if="{{selectPoster==3}}">
+<view class="item">
+  <input type="text" name='username' placeholder="请输入新的用户名" bindinput="changeUserBlur" />
+  <view class="error" wx:if="{{userDecide==false}}"> 请输入用户名</view>
+  <view wx:if="{{userDecide==1}}">
+<icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
+  </view>
+  <view class="error" wx:if="{{userDecide==2}}"> 用户名已存在</view>
+  <view class="error" wx:if="{{userDecide==3}}"> 和原来用户名相同</view>
+  </view>
+  <view class="set-save"><view class="set-save-button" bindtap="usernameSave"><view>保存修改</view></view></view>
+</view>
+    
+ <!-- 修改密码 -->
+ <view class="settle-info" wx:if="{{selectPoster==1}}">
+    <!--  密码   -->
+<view class="item">
+  <input type="text" name='password' placeholder="请输入6到20位密码" bindinput="changePasswordBlur" />
+  <view class="error" wx:if="{{passwordDecide==false}}"> 请输入新密码</view>
+  <view wx:if="{{passwordDecide==1}}">
+<icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
+  </view>
+  <view class="error" wx:if="{{passwordDecide==2}}"> 密码不符合格式</view>
+  <view class="error" wx:if="{{passwordDecide==3}}"> 密码和原来相同</view>
+  </view>
+<!--  确认密码    -->
+<view class="item">
+  <input type="text" name='passwordAgain' placeholder="请再次输入新密码" bindinput="changePasswordAgainBlur" />
+  <view class="error" wx:if="{{passwordAgainDecide==false}}"> 请再次输入密码</view>
+  <view wx:if="{{passwordAgainDecide==1}}">
+<icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
+  </view>
+  <view class="error" wx:if="{{passwordAgainDecide==2}}"> 密码与上面不同</view>
+  </view>
+  <view class="set-save"><view class="set-save-button" bindtap="passwordSave"><view>保存修改</view></view></view>
+</view>
+ </view>
 </view>
