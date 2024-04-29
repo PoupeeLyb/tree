@@ -13,7 +13,8 @@
  <view class="username">
   <view class="title">密码:</view>
   <view class="text">
-   <input type="text"  bindinput="passwordInput" placeholder="请输入密码"/>
+   <input type="{{show}}"  bindinput="passwordInput" placeholder="请输入密码" />
+   <image class="passwordImage" bind:tap="touchEye" src="{{isShow?'/image/眼睛.png':'/image/不可见.png'}}"></image>
   </view>
  </view>
  <!-- 登录按钮 -->

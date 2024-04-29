@@ -32,6 +32,16 @@ form{
  width: 100%;
  background-color:white;
 }
+.passwordText{
+  display: flex;
+  flex-direction: row;
+ font-weight:400;
+}
+.passwordImage{
+ padding-left: 200rpx;
+  height: 40rpx;
+  width: 50rpx;
+}
 .item{
   margin: 0 auto;
   border:2rpx solid rgba(119, 218, 243, 0.89);

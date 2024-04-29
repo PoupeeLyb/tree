@@ -17,7 +17,8 @@
     "pages/personal/follow_list/message",
     "pages/personal/suggestion/suggestion",
     "pages/personal/friends/friends",
-    "pages/personal/letter/letter"
+    "pages/personal/letter/letter",
+    "pages/personal/myPost/myPost"
   ],
   "window": {
     "navigationBarTextStyle": "black",

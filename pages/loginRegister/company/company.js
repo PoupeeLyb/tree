@@ -16,8 +16,12 @@ Page({
     userDecide:false,
     iconDecide:false,
     password:{},
+    passwordShow:'password',
+    passwordIsShow:false,
     passwordDecide:false,
     passwordAgainDecide:false,
+    passwordAgainShow:'password',
+    passwordAgainIsShow:false,
     phoneDecide:false
   },
   onChooseAvatar(e) {
@@ -178,8 +182,34 @@ Page({
       }
       }
   },
-
-
+  PasswordTouchEye:function(){
+    if(!this.data.passwordIsShow){
+      this.setData({
+        passwordShow:'text',
+        passwordIsShow:true
+      })  
+    }
+    else{
+      this.setData({
+        passwordShow:'password',
+        passwordIsShow:false
+      })  
+    }
+  },
+  PasswordAgainTouchEye:function(){
+    if(!this.data.passwordAgainIsShow){
+      this.setData({
+        passwordAgainShow:'text',
+        passwordAgainIsShow:true
+      })  
+    }
+    else{
+      this.setData({
+        passwordAgainShow:'password',
+        passwordAgainIsShow:false
+      })  
+    }
+  },
   
   /**
    * 生命周期函数--监听页面加载

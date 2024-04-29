@@ -15,6 +15,8 @@ margin-top: 80rpx;
  font-weight:bold;
 }
 .text{
+  display: flex;
+  flex-direction: row;
  font-weight:400;
 }
 .hr{
@@ -32,4 +34,9 @@ margin-top: 80rpx;
    padding-top: 80rpx;
    font-size: 35rpx;
    font-weight: bold;
+}
+.passwordImage{
+  padding-left: 150rpx;
+  height: 40rpx;
+  width: 50rpx;
 }

@@ -25,3 +25,13 @@ form{
   font-size: 15px;
   margin-left: 20px;
 }
+.passwordText{
+  display: flex;
+  flex-direction: row;
+ font-weight:400;
+}
+.passwordImage{
+ padding-left: 200rpx;
+  height: 40rpx;
+  width: 50rpx;
+}

@@ -9,11 +9,13 @@ Page({
     loginBtnState:true,
     username:"",
     password:"",
+    show:'password',
     user:[
       {
       username:"1234",
       password:"2004",
-    }]
+    }],
+    isShow:false
   },
 usernameInput:function(text){
   console.log(text);
@@ -109,6 +111,20 @@ else{
     duration:2000
  })
 }
+},
+touchEye:function(){
+  if(!this.data.isShow){
+    this.setData({
+      show:'text',
+      isShow:true
+    })  
+  }
+  else{
+    this.setData({
+      show:'password',
+      isShow:false
+    })  
+  }
 },
   /**
    * 生命周期函数--监听页面加载

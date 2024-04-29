@@ -29,7 +29,10 @@
   </view>
 <!--  密码   -->
 <view class="item">
-  <input type="text" name='password' placeholder="请输入6到20位密码" bindinput="registerPasswordBlur" />
+<view class="passwordText">
+  <input type="{{passwordShow}}" name='password' placeholder="请输入6到20位密码" bindinput="registerPasswordBlur" />
+  <image class="passwordImage" bind:tap="PasswordTouchEye" src="{{passwordIsShow?'/image/眼睛.png':'/image/不可见.png'}}"></image>
+</view>
   <view class="error" wx:if="{{passwordDecide==false}}"> 请输入密码</view>
   <view wx:if="{{passwordDecide==1}}">
 <icon type="success" size="18"  bind:tap="agreementBind"  ></icon>
@@ -38,7 +41,10 @@
   </view>
 <!--  确认密码    -->
 <view class="item">
-  <input type="text" name='passwordAgain' placeholder="请再次输入密码" bindinput="registerPasswordAgainBlur" />
+  <view class="passwordText">
+  <input type="{{passwordAgainShow}}" name='passwordAgain' placeholder="请再次输入密码" bindinput="registerPasswordAgainBlur" />
+  <image class="passwordImage" bind:tap="PasswordAgainTouchEye" src="{{passwordAgainIsShow?'/image/眼睛.png':'/image/不可见.png'}}"></image>
+  </view>
   <view class="error" wx:if="{{passwordAgainDecide==false}}"> 请再次输入密码</view>
   <view wx:if="{{passwordAgainDecide==1}}">
 <icon type="success" size="18"  bind:tap="agreementBind"  ></icon>

@@ -36,6 +36,10 @@ Page({
   },
   onLoad: function () {
     let userStorage = wx.getStorageSync('users');
+    let posts=wx.getStorageSync('posts');
+    this.setData({
+      posts:posts
+    })
     var location=userStorage.findIndex(item=>{
       return item.username==app.globalData.USERNAME});
     if (userStorage){

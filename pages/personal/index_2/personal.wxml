@@ -27,8 +27,8 @@
         <view class="today-step user-info-item">
           <view class="user-info-image"><view class="image-content p3"><image src="/image/v2/p3.png"></image></view></view>
           <view class="user-info-data">
-            <view class="user-info-flag">帖子动态</view>
-            <view class="user-info-word">{{user.posts}}</view>
+          <navigator class="user-info-flag "url="../myPost/myPost">帖子动态</navigator>
+            <view class="user-info-word">{{posts.length}}</view>
           </view>
         </view>
         <view class="today-rand user-info-item">

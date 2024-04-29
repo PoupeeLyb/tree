@@ -18,14 +18,9 @@ const getUserInfo = function (_method = null, _url = null, _data = null, callbac
   wx.getUserProfile({
     desc: '用于完善会员资料',
     success: res => {
-      wx.login({
-        success: loginResult => { // 发送 res.code 到后台换取 openId, sessionKey, unionId
-          post("/auth/login_v2?type=weChat", {
-            encrypted_data: res.encryptedData,
-            code: loginResult.code,
-            iv: res.iv,
-            app_id: config.alianceKey
-          }, function (res) {
+      var userinfo=arr.find(item=>{
+        return item.username==app.globalData.USERNAME });
+            res.data.data=userinfo;
             wx.setStorageSync('token', res.data.data);
             console.log('token:' + res.data.data);
             if (_method) {
@@ -34,17 +29,14 @@ const getUserInfo = function (_method = null, _url = null, _data = null, callbac
             if (callback) {
               //回调函数
               callback();
+        
             }
-          });
-
         },
         fail:res=>{
           console.log(res);
         }
       })
     }
-  })
-}
 
 /**
  * get
@@ -97,6 +89,8 @@ const httpRequest=function (_method, _url, _data, callback) {
     method: _method,
     data: _data,
     success: function (res) {
+      console.log(res.data.error_code);
+      res.data.error_code=0;
       if (res.data.error_code == '5000') {
         app.globalData.authStatus = true;
         callback(res);

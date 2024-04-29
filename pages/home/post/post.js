@@ -70,7 +70,6 @@ Page({
     let privateValue = this.data.private;
     let username = this.data.name;
     let mobile = this.data.phone;
-
     //获取图片
     this.data.imageArray.map(item=>{
       attachments.push(item.uploadResult.key)
