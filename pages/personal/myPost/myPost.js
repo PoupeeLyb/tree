@@ -1,99 +1,167 @@
 // pages/personal/myPost/myPost.js
+const app=getApp();
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
+    user:{},
+    username:'',
     showCommentInput:true,
     posts:[
-    {
-      poster:{
-      avatar:"http://tmp/eI187uHySE2h86ea7a33ee0b7c74fff7f4077147b88c.jpeg",
-      nickname:"Lyb"
-     },
-     supertube:1,
-     id:1,
-     can_delete:1,
-     follow:1,
-     content:"我不喜欢",
-     created_at:"2004.4.30",
-     comments:[
-       {
-        ref_comment:0,
-         id:1,
-         author:0,
-        commenter:{
-        supertube:1,
-        nickname:"lin",
-        avatar:"http://tmp/eI187uHySE2h86ea7a33ee0b7c74fff7f4077147b88c.jpeg",
+    ]
+  },
+  onLoad(options) {
+    wx.setNavigationBarTitle({
+      title:"我的贴子"
+    })
+      },
+    
+      /**
+       * 生命周期函数--监听页面初次渲染完成
+       */
+      onReady() {
+    
+      },
+    
+      /**
+       * 生命周期函数--监听页面显示
+       */
+      onShow() {
+        this.setData({
+          username:app.globalData.USERNAME,
+          user:app.globalData.USER
+        })
+        this.getPersonalInfo(app.globalData.USERNAME);
+      },
+    
+      /**
+       * 生命周期函数--监听页面隐藏
+       */
+      onHide() {
+    
+      },
+    
+      /**
+       * 生命周期函数--监听页面卸载
+       */
+      onUnload() {
+    
+      },
+      getPersonalInfo:function(e){
+        var that=this;
+       wx.request({
+         url: 'http://localhost:8080/user/userInfo?username='+e,
+         method:'GET',
+         data:{},
+         header:{
+           'content-type':'application/json'
+         },
+         success(res){
+           console.log(res);
+          app.globalData.USER=res.data;
+          that.getLastloginDay(app.globalData.USER);
+          that.getPost(that.data.user.id);
+         }
+       })
        },
-       content:"我也不喜欢"
+     getLastloginDay:function(e){
+   
+   // 使用 Date 对象来解析日期字符串
+   console.log(e);
+   const dateParts = e.last_login.split("-"); // 将日期字符串拆分为年、月、日的数组
+   const year = parseInt(dateParts[0]);
+   const month = parseInt(dateParts[1]);
+   const day = parseInt(dateParts[2]);
+   console.log(day);
+   const currentDate = new Date();
+   
+   // 获取年、月、日
+   const nowyear = currentDate.getFullYear();
+   const nowmonth = currentDate.getMonth() + 1; // 月份从 0 开始，需要加 1
+   const nowday = currentDate.getDate();
+   console.log(nowday);
+   if(year<nowyear||(year==nowyear&&month<nowmonth)||(year==nowyear&&month==nowmonth&&day<nowday)){
+     app.globalData.USER.last_login=`${nowyear}-${nowmonth.toString().padStart(2, '0')}-${nowday.toString().padStart(2, '0')}`
+     app.globalData.USER.login_days++;
+     console.log( app.globalData.USER);
+     this.updateUser(app.globalData.USER);
+   }
+   this.setData({
+     user: app.globalData.USER
+   });
      },
-     {
-      ref_comment:0,
-      id:2,
-      author:1,
-     commenter:{
-     supertube:0,
-     nickname:"lyb",
-     avatar:"http://tmp/eI187uHySE2h86ea7a33ee0b7c74fff7f4077147b88c.jpeg",
-    },
-    content:"我喜欢"
-  },
-  {
-     ref_comment:0,
-      id:3,
-      author:0,
-     commenter:{
-     supertube:0,
-     nickname:"poupee",
-     avatar:"http://tmp/eI187uHySE2h86ea7a33ee0b7c74fff7f4077147b88c.jpeg",
-    },
-    content:"我更加喜欢"
-  },
-  {
-    ref_comment:{
-      refCommenter:{
-        nickname:"lin",
-        avatar:"http://tmp/eI187uHySE2h86ea7a33ee0b7c74fff7f4077147b88c.jpeg",
-      }
-    },
-    id:4,
-    author:0,
-   commenter:{
-   supertube:0,
-   nickname:"liu",
-   avatar:"http://tmp/eI187uHySE2h86ea7a33ee0b7c74fff7f4077147b88c.jpeg",
-  },
-  content:"我也一样"
-  }
-     ],
-     praises:[
-     {
-       id:0,
-       avatar:"http://tmp/eI187uHySE2h86ea7a33ee0b7c74fff7f4077147b88c.jpeg",
-       nickname:"lin"
+     updateUser:function(e){
+   
+       wx.request({
+         url: 'http://localhost:8080/user/update',
+         method:'PUT',
+         data:e,
+         header:{
+           'content-type':'application/json'
+         },
+         success(res){
+           console.log(res);
+         }
+       })
      },
-     {
-      id:1,
-      avatar:"http://tmp/eI187uHySE2h86ea7a33ee0b7c74fff7f4077147b88c.jpeg",
-      nickname:"lyb"
-    }
-    ],
-     attachments:[
-      {
-      id:0,
-      imageUrl:"http://tmp/eI187uHySE2h86ea7a33ee0b7c74fff7f4077147b88c.jpeg"
+     getPost: function (e) {
+       var that = this;
+       wx.request({
+         url: 'http://localhost:8080/post/getpost?userId=' + e,
+         method: 'GET',
+         data: {},
+         header: {
+           'content-type': 'application/json'
+         },
+         success(res) {
+           console.log(res);
+           var postPromises = [];
+           res.data.forEach(post => {
+             postPromises.push(that.getAttachment(post.id));
+           });
+     
+           Promise.all(postPromises).then((attachments) => {
+             var posts = [];
+             res.data.forEach((post, index) => {
+               var getPost = {};
+               getPost.id = post.id;
+               getPost.user = that.data.user;
+               getPost.content = post.content;
+               getPost.created_at = post.created_at;
+               getPost.attachments = attachments[index];
+               posts.push(getPost);
+             });
+             console.log(posts);
+             that.setData({
+               posts: posts
+             });
+           }).catch((error) => {
+             console.error(error);
+           });
+         }
+       });
      },
-     {
-      id:1,
-      imageUrl:"http://tmp/eI187uHySE2h86ea7a33ee0b7c74fff7f4077147b88c.jpeg"
-     },
-    ]
-     }
-    ]
-  },
+     getAttachment: function(postId) {
+       return new Promise((resolve, reject) => {
+         wx.request({
+           url: 'http://localhost:8080/attachment/get?postId=' + postId,
+           method: 'GET',
+           data: {},
+           header: {
+             'content-type': 'application/json'
+           },
+           success(res) {
+             console.log(res);
+             resolve(res.data);
+           },
+           fail(error) {
+             reject(error);
+           }
+         });
+       });
+     },    
   deletePost: function (e) {
     let objId = e.target.id;
     wx.showModal({
@@ -289,39 +357,6 @@ Page({
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad(options) {
-wx.setNavigationBarTitle({
-  title:"我的贴子"
-})
-  },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
 
   /**
    * 页面相关事件处理函数--监听用户下拉动作

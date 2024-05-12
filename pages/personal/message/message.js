@@ -2,6 +2,7 @@ const app = getApp();
 
 Page({
   data: {
+    user:app.globalData.USER,
     userAvatarUrl:app.globalData.USERAVATARURL,
     selectPoster:2,
     userDecide:false,
@@ -23,7 +24,7 @@ Page({
       this.setData({
         userAvatarUrl: avatarUrl,
       })
-      if(avatarUrl==app.globalData.USERAVATARURL){
+      if(avatarUrl==this.data.user.avatar){
       this.setData({
         userAvatarUrlDecide:2
       })
@@ -36,14 +37,8 @@ Page({
     },
     userAvatarUrlSave:function(){
       if(this.data.userAvatarUrlDecide==1){
-      var userinfos=wx.getStorageSync('users');
-      var location=userinfos.findIndex(item=>{
-        return item.username==app.globalData.USERNAME})
-      userinfos[location].userAvatarUrl=this.data.userAvatarUrl;
-      wx.setStorageSync('users', userinfos);  
-      console.log(userinfos[location]);
-      app.globalData.USERAVATARURL=this.data.userAvatarUrl;
-      console.log(app.globalData.USERAVATARURL);
+        app.globalData.USER.avatar=this.data.userAvatarUrl;
+        this.updateUser(app.globalData.USER);
       wx.showToast({
         title: '修改成功',
         duration:2000
@@ -60,74 +55,62 @@ Page({
     }
     },
     changeUserBlur:function(e){
-      var objs={};
-      objs.username=e.detail.value;
-      var arr=wx.getStorageSync('users')||[];
-      var userinfo=arr.find(item=>{
-        return item.username==objs.username });
-      var location=arr.findIndex(item=>{
-        return item.username==app.globalData.USERNAME})  
-        if( objs.username==''){
+        if( e.detail.value==''){
           this.setData({
             userDecide:false
           })
         }
-        else if(objs.username==app.globalData.USERNAME){
-          this.setData({
-            userDecide:3
-          })
-        }
         else{
-        if(!userinfo){
      this.setData({
        userDecide:1,
-       username:objs.username
+       username:e.detail.value
      })
+     console.log(this.data.username);
     }
-    else{
-      this.setData({
-        userDecide:2
-      })
-    }
-  }
     },
     usernameSave:function(){
       if(this.data.userDecide==1){
-      var userinfos=wx.getStorageSync('users');
-      var location=userinfos.findIndex(item=>{
-        return item.username==app.globalData.USERNAME})
-      userinfos[location].username=this.data.username;
-      wx.setStorageSync('users', userinfos);  
-      console.log(userinfos[location]);
-      app.globalData.USERNAME=this.data.username;
-      console.log(app.globalData.USERNAME);
-      wx.showToast({
-        title: '修改成功',
-        duration:2000
-      }) 
-      wx.navigateBack({
-        url: '../index_2/personal',
-      })
-    }
-    else{
-      wx.showToast({
-        title: '修改失败',
-        duration:2000
-      }) 
-    }
+        var that=this;
+        wx.request({
+          url: 'http://localhost:8080/user/userInfo?username='+this.data.username,
+          method:'GET',
+          data:{},
+          header:{
+            'content-type':'application/json'
+          },
+          success(res){
+            console.log(res);
+            if(res.data=='未找到该用户'){
+              app.globalData.USER.username=that.data.username;
+              that.updateUser(app.globalData.USER);
+              wx.showToast({
+                title: '修改成功',
+                duration:2000
+              }) 
+              wx.navigateBack({
+                url: '../index_2/personal',
+              })
+            }
+            else {
+              wx.showToast({
+                title: '用户名已存在',
+                duration:2000
+              }) 
+            }  
+          }
+        })
+      }
+      else{
+        wx.showToast({
+          title: '修改失败',
+          duration:2000
+        }) 
+      }
     },
     changePasswordBlur:function(e){
-      var userinfos=wx.getStorageSync('users');
-      var location=userinfos.findIndex(item=>{
-        return item.username==app.globalData.USERNAME})
       if( e.detail.value==''){
         this.setData({
           passwordDecide:false
-        })
-      }
-      else if(e.detail.value==userinfos[location].password){
-        this.setData({
-          passwordDecide:3
         })
       }
       else{
@@ -166,11 +149,8 @@ Page({
    },
    passwordSave:function(){
     if(this.data.passwordDecide==1&&this.data.passwordAgainDecide==1){
-      var userinfos=wx.getStorageSync('users');
-      var location=userinfos.findIndex(item=>{
-        return item.username==app.globalData.USERNAME})
-      userinfos[location].password=this.data.password;
-      wx.setStorageSync('users', userinfos);  
+     app.globalData.USER.password=this.data.password;
+     this.updateUser(app.globalData.USER);
       wx.showToast({
         title: '修改成功',
         duration:2000
@@ -186,6 +166,20 @@ Page({
       }) 
     }
    },
+   updateUser:function(e){
+
+    wx.request({
+      url: 'http://localhost:8080/user/update',
+      method:'PUT',
+      data:e,
+      header:{
+        'content-type':'application/json'
+      },
+      success(res){
+        console.log(res);
+      }
+    })
+  },
   onLoad: function (option) {
   
    

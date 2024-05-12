@@ -1,5 +1,3 @@
-const util = require("./../../../utils/util.js");
-const http = require("./../../../utils/http.js");
 const app = getApp()
 
 Page({
@@ -58,44 +56,95 @@ Page({
     param:app.globalData.param
   },
 
-  onLoad: function (e) {
-    if (e.id != undefined) {
-      this.setData({ sharecomeIn: true, shareId: e.id, shareType: e.type })
-    }
-    wx.showLoading({
-      title: '加载中',
-    });
-    this.getPost();
-    this.topic();
+  onLoad: function () {
+    wx.setNavigationBarTitle({
+      title:"树洞"
+    })
   },
-
   onShow: function (option) {
-
-    if (app.globalData.reloadHome == true){
-      app.globalData.reloadHome = false;
       this.setData({
         pageNumber: this.data.initPageNumber,
         posts: []
       });
       this.getPost();
-    }
-
-    let type = 0;
-    http.getNewInbox(type, res=>{
-      if (res.data.data != 0 && res.data.data != null && res.data.data != '') {
-        this.setData({
-          newMessage: true,
-          newMessageNumber: res.data.data
+  },
+  getPost: function () {
+    var that = this;
+    wx.request({
+      url: 'http://localhost:8080/post/allpost',
+      method: 'GET',
+      data: {},
+      header: {
+        'content-type': 'application/json'
+      },
+      success(res) {
+        console.log(res);
+        var postPromises = [];
+        res.data.forEach(post => {
+          postPromises.push(that.getAttachment(post.id));
         });
-      } else {
-        this.setData({
-          newMessage: false,
-          newMessageNumber: 0
+  
+        Promise.all(postPromises).then((attachments) => {
+          var posts = [];
+          res.data.forEach((post, index) => {
+            var getPost = {};
+            getPost.id = post.id;
+            getPost.content = post.content;
+            getPost.created_at = post.created_at;
+            getPost.attachments = attachments[index];
+            // 在这里调用获取用户信息的函数，并将用户信息存入帖子对象
+            that.getUser(post.user_id, function(user) {
+              getPost.user = user;
+              posts.push(getPost);
+              if (posts.length === res.data.length) {
+                // 当所有帖子都处理完毕后，更新页面数据
+                that.setData({
+                  posts: posts
+                });
+              }
+            });
+          });
+        }).catch((error) => {
+          console.error(error);
         });
       }
     });
   },
-
+  getUser: function (userId, callback) {
+    wx.request({
+      url: 'http://localhost:8080/user/userInfoById?id=' + userId,
+      method: 'GET',
+      data: {},
+      header: {
+        'content-type': 'application/json'
+      },
+      success(res) {
+        console.log(res);
+        // 调用回调函数，并传入用户信息
+        callback(res.data);
+      }
+    });
+  },
+  
+  getAttachment: function(postId) {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: 'http://localhost:8080/attachment/get?postId=' + postId,
+        method: 'GET',
+        data: {},
+        header: {
+          'content-type': 'application/json'
+        },
+        success(res) {
+          console.log(res);
+          resolve(res.data);
+        },
+        fail(error) {
+          reject(error);
+        }
+      });
+    });
+  },
   /**
    * 点赞话题
    */
@@ -217,17 +266,6 @@ Page({
     this.getPost();
   },
 
-  /**
-   * 获取用户信息
-   */
-  getUserInfo: function (e) {
-    app.globalData.userInfo = e.detail.userInfo
-    this.setData({
-      userInfo: e.detail.userInfo,
-      hasUserInfo: true
-    })
-  },
-
   /** 
    * 进入发表页面
    */
@@ -236,111 +274,6 @@ Page({
       url: '/pages/home/post/post'
     })
   },
-
-  /**
-   * 获取最新的贴子
-   */
-  getMostNewPost: function () {
-    http.get('/most_new_post', {
-      date_time: this.data.currentTime
-    }, res => {
-
-      this.setData({
-        currentTime: util.formatTime(new Date())
-      });
-      wx.stopPullDownRefresh();
-      let posts = this.data.posts;
-      if(res.data.data){
-        if (res.data.data.length > 0) {
-          res.data.data.map(item => {
-            let ifRepeat = false;
-            for (let post of posts) {
-              if (post.id == item.id) {
-                ifRepeat = true;
-              }
-            }
-
-            if (!ifRepeat) {
-              posts.unshift(item);
-            }
-          });
-
-          this.setData({
-            posts: posts
-          });
-        }
-      }
-    });
-  },
-
-  /**
-   * 发表贴子后获取最新的贴子
-   */
-  getNewPost: function () {
-    //获取新的贴子
-    http.post('/post', {
-      page_size: 10,
-      page_number: 1
-    }, res => {
-      if (res.data.data != null){
-        this.setData({
-          posts: res.data.data.page_data,
-          pageNumber: this.data.initPageNumber
-        });
-      }
-    });
-  },
-
-  /**
-   * 获取贴子
-   */
-  getPost: function (objType = null) {
-    let order_by = 'created_at';
-    let sort_by = 'desc';
-    if (this.data.postType == 4) {
-      order_by = 'praise_number';
-      sort_by = 'desc';
-    }
-
-    if (this.data.postType == 3) {
-      this.setData({
-        pageNumber: this.data.initPageNumber
-      });
-    }
-
-    this.setData({
-      notDataTips: false
-    });
-
-    http.get(`/post?page_size=${this.data.pageSize}&page_number=${this.data.pageNumber}&obj_type=${objType}&type=${this.data.postType}&order_by=${order_by}&sort_by=${sort_by}&filter=${this.data.filter}`,
-      {},
-      res => {
-        setTimeout(t=>{
-          wx.stopPullDownRefresh();
-        },700)
-        wx.hideLoading();
-        this.setData({
-          showGeMoreLoadin: false
-        })
-        let posts = this.data.posts;
-        if(res.data.data){
-          if (res.data.data.page_data.length > 0) {
-            res.data.data.page_data.map(item => {
-              posts.push(item);
-            });
-            this.setData({
-              posts: posts,
-              pageNumber: this.data.pageNumber + 1              
-            });
-          } else {
-            this.setData({
-              notDataTips: true
-            });
-          }
-        }
-      });
-  },
-
   /**
    * 预览图片
    */

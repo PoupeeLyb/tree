@@ -1,4 +1,5 @@
 // pages/findkey/findkey.js
+const app = getApp();
 Page({
 
   /**
@@ -6,7 +7,8 @@ Page({
    */
   data: {
     userDecide:false,
-    password:{},
+    username:'',
+    password:'',
     passwordShow:'password',
     passwordIsShow:false,
     passwordDecide:false,
@@ -15,27 +17,17 @@ Page({
     passwordAgainIsShow:false,
   },
   registerUserBlur:function(e){
-    var objs={};
-    objs.username=e.detail.value;
-    var arr=wx.getStorageSync('users')||[];
-    var userinfo=arr.find(item=>{
-      return item.username==objs.username });
-      if( objs.username==''){
+      if( e.detail.value==''){
         this.setData({
-          userDecide:false
+          userDecide:false,
+          username:e.detail.value
         })
       }
-      else{
-      if(!userinfo){
-   this.setData({
-     userDecide:2
-   })
-  }
   else{
     this.setData({
-      userDecide:1
+      userDecide:1,
+      username:e.detail.value
     })
-  }
 }
   },
   registerPasswordBlur:function(e){
@@ -79,43 +71,45 @@ Page({
   }
  },
  formSubmit:function(e){
-  var objs={};
-  objs.username=e.detail.value.username;
-  objs.password=e.detail.value.password;
-  var arr=wx.getStorageSync('users')||[];
-  var location=arr.findIndex(item=>{
-    return item.username==objs.username});
-  var userinfo=arr.find(item=>{
-    return item.username==objs.username });
-    objs.phoneNumber=userinfo.phoneNumber;
-    console.log(objs);
-    console.log(location);
-    console.log(userinfo);
-    if(!userinfo){
-      wx.showToast({
-        title:'用户名不存在',
-        duration:2000
-      })
-    }
-    else{
+  var that=this;
+        
       if(this.data.passwordDecide==1&&this.data.passwordDecide==1&&this.data.userDecide==1){
-      arr.splice(location,1);
-      arr.push(objs);
-      wx.setStorageSync('users', arr);
-      wx.showToast({
-        title: '修改成功',
-        duration:2000
-      }) 
-      wx.navigateTo({
-        url: '../login/login',
-      })
+        wx.request({
+          url: 'http://localhost:8080/user/userInfo?username='+this.data.username,
+          method:'GET',
+          data:{},
+          header:{
+            'content-type':'application/json'
+          },
+          success(res){
+            console.log(res);
+            if(res.data!='未找到该用户'){
+              app.globalData.USER=res.data;
+              app.globalData.USER.password=that.data.password;
+              console.log(app.globalData.USER);
+              that.updateUser(app.globalData.USER);
+              wx.showToast({
+                title: '修改成功',
+                duration:2000
+              }) 
+              wx.navigateTo({
+                url: '../login/login',
+              })
+            }
+            else {
+              wx.showToast({
+                title: '用户名不存在',
+                duration:2000
+              }) 
+            }  
+          }
+        })
     }
     else{
       wx.showToast({
         title: '修改失败',
         duration:2000
       }) 
-    }
     }
 },
 PasswordTouchEye:function(){
@@ -146,7 +140,20 @@ PasswordAgainTouchEye:function(){
     })  
   }
 },
+updateUser:function(e){
 
+  wx.request({
+    url: 'http://localhost:8080/user/update',
+    method:'PUT',
+    data:e,
+    header:{
+      'content-type':'application/json'
+    },
+    success(res){
+      console.log(res);
+    }
+  })
+},
   /**
    * 生命周期函数--监听页面加载
    */

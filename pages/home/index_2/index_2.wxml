@@ -35,27 +35,27 @@
         </view>
       </view>
     </view>
-    <!-- 表白墙flag -->
+    <!-- 树洞flag -->
     <view class="body-flag" wx:if="{{showTopic}}">
-      <view class="flag">表白墙</view>
+      <view class="flag">树洞</view>
       <view class="flag-tab"></view>
     </view>
 
-    <!-- 表白墙列表 -->
+    <!-- 树洞列表 -->
     <view class="body-list" bindtouchmove="hiddenComment">
       <view class="body-item"  wx:for="{{posts}}" wx:key="id">
         <view class="item-header">
-          <view class="avatar-item" bindtap="openUserInfo" data-id="{{item.poster.id}}">
+          <view class="avatar-item" bindtap="openUserInfo" data-id="{{item.user.id}}">
             <image class="avatar-border" src="/image/v2/border.png"></image>
-            <image class="user-avatar" src="{{item.poster.avatar}}"></image>
+            <image class="user-avatar" src="{{item.user.avatar}}"></image>
           </view>
-          <view class="nickname-item" bindtap="openUserInfo" data-id="{{item.poster.id}}">
+          <view class="nickname-item" bindtap="openUserInfo" data-id="{{item.user.id}}">
             <view class="nickname-top">
-              <view class="poster-nickname">{{item.poster.nickname}}</view>
+              <view class="poster-nickname">{{item.user.username}}</view>
               <image src="/image/v2/index-admin.png" wx:if="{{item.supertube == 1}}"></image>
             </view>
             <view class="nickname-bottom">
-              <view class="nickname-flag" wx:if="{{item.topic != '无'}}">表白@</view>
+              <view class="nickname-flag" wx:if="{{item.topic != '无'}}">留言@</view>
               <view class="bottom-name" wx:if="{{item.topic != '无'}}">{{item.topic}}</view>
             </view>
           </view>
@@ -74,11 +74,8 @@
             <image mode="aspectFill"
                   wx:for="{{item.attachments}}" 
                    wx:key="id"
-                   wx:for-item="sitem"
-                   src="{{baseImageUrl+sitem}}" 
-                   bindtap='previewMoreImage'
-                   data-obj="{{item.attachments}}"
-                   id="{{baseImageUrl+sitem}}"></image>
+                   src="{{item.imageUrl}}" 
+                  ></image>
           </view>
         </view>
         <view class="item-footer">

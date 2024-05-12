@@ -3,11 +3,11 @@
         <view class="item-header">
           <view class="avatar-item">
             <image class="avatar-border" src="/image/v2/border.png"></image>
-            <image class="user-avatar" src="{{item.poster.avatar}}"></image>
+            <image class="user-avatar" src="{{item.user.avatar}}"></image>
           </view>
           <view class="nickname-item">
             <view class="nickname-top">
-              <view>{{item.poster.nickname}}</view>
+              <view>{{item.user.username}}</view>
               <image src="/image/v2/index-admin.png" wx:if="{{item.supertube == 1}}"></image>
             </view>
           </view>

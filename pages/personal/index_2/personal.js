@@ -1,11 +1,10 @@
+const { get } = require("../../../utils/http");
 
 const app = getApp();
-const http = require("./../../../utils/http.js");
-
-
 Page({
   data: {
-    user: '',
+    user: {},
+    getAttachment:[],
     newLetterNumber: 0,
     serviceId: '',
     param: app.globalData.param,
@@ -35,23 +34,128 @@ Page({
     username:app.globalData.USERNAME
   },
   onLoad: function () {
-    let userStorage = wx.getStorageSync('users');
-    let posts=wx.getStorageSync('posts');
-    this.setData({
-      posts:posts
-    })
-    var location=userStorage.findIndex(item=>{
-      return item.username==app.globalData.USERNAME});
-    if (userStorage){
-      this.setData({
-        user: userStorage[location],
-      })
-      console.log(this.data.user);
-      console.log(this.data.user.fans_num);
-    }
   },
+  onShow: function () {
+    this.setData({
+      username:app.globalData.USERNAME,
+      user:app.globalData.USER
+    })
+    this.getPersonalInfo(app.globalData.USERNAME);
+  },
+   getPersonalInfo:function(e){
+     var that=this;
+    wx.request({
+      url: 'http://localhost:8080/user/userInfo?username='+e,
+      method:'GET',
+      data:{},
+      header:{
+        'content-type':'application/json'
+      },
+      success(res){
+        console.log(res);
+       app.globalData.USER=res.data;
+       that.getLastloginDay(app.globalData.USER);
+       that.getPost(that.data.user.id);
+      }
+    })
+    },
+  getLastloginDay:function(e){
 
+// 使用 Date 对象来解析日期字符串
+console.log(e);
+const dateParts = e.last_login.split("-"); // 将日期字符串拆分为年、月、日的数组
+const year = parseInt(dateParts[0]);
+const month = parseInt(dateParts[1]);
+const day = parseInt(dateParts[2]);
+console.log(day);
+const currentDate = new Date();
 
+// 获取年、月、日
+const nowyear = currentDate.getFullYear();
+const nowmonth = currentDate.getMonth() + 1; // 月份从 0 开始，需要加 1
+const nowday = currentDate.getDate();
+console.log(nowday);
+if(year<nowyear||(year==nowyear&&month<nowmonth)||(year==nowyear&&month==nowmonth&&day<nowday)){
+  app.globalData.USER.last_login=`${nowyear}-${nowmonth.toString().padStart(2, '0')}-${nowday.toString().padStart(2, '0')}`
+  app.globalData.USER.login_days++;
+  console.log( app.globalData.USER);
+  this.updateUser(app.globalData.USER);
+}
+this.setData({
+  user: app.globalData.USER
+});
+  },
+  updateUser:function(e){
+
+    wx.request({
+      url: 'http://localhost:8080/user/update',
+      method:'PUT',
+      data:e,
+      header:{
+        'content-type':'application/json'
+      },
+      success(res){
+        console.log(res);
+      }
+    })
+  },
+  getPost: function (e) {
+    var that = this;
+    wx.request({
+      url: 'http://localhost:8080/post/getpost?userId=' + e,
+      method: 'GET',
+      data: {},
+      header: {
+        'content-type': 'application/json'
+      },
+      success(res) {
+        console.log(res);
+        var postPromises = [];
+        res.data.forEach(post => {
+          postPromises.push(that.getAttachment(post.id));
+        });
+  
+        Promise.all(postPromises).then((attachments) => {
+          var posts = [];
+          res.data.forEach((post, index) => {
+            var getPost = {};
+            getPost.id = post.id;
+            getPost.user = that.data.user;
+            getPost.content = post.content;
+            getPost.created_at = post.created_at;
+            getPost.attachments = attachments[index];
+            posts.push(getPost);
+          });
+          console.log(posts);
+          that.setData({
+            posts: posts
+          });
+        }).catch((error) => {
+          console.error(error);
+        });
+      }
+    });
+  },
+  getAttachment: function(postId) {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: 'http://localhost:8080/attachment/get?postId=' + postId,
+        method: 'GET',
+        data: {},
+        header: {
+          'content-type': 'application/json'
+        },
+        success(res) {
+          console.log(res);
+          resolve(res.data);
+        },
+        fail(error) {
+          reject(error);
+        }
+      });
+    });
+  },
+  
   /**
    * 进入关注页面
    */
@@ -184,55 +288,14 @@ Page({
     })
   },
 
-  /**
-   * 上拉加载更多
-   */
-  onReachBottom: function () {
-    this.setData({
-      showGeMoreLoadin: true
-    });
-    if(this.data.selectPoster == 1){
-      this.getPost();
-    }
-    if(this.data.selectPoster == 2){
-      this.getSaleList()
-    }
-  },
 
-    /**
-   * 获取贴子
-   */
-  getPost: function () {
-    http.get(`/post?page_size=${this.data.pageSize}&page_number=${this.data.pageNumber}&just=1&user_id=${this.data.user.id}`, {}, res => {
-      this.setData({
-        showGeMoreLoadin: false
-      })
-      let posts = this.data.posts;
-
-      if (res.data.data.page_data.length > 0) {
-        res.data.data.page_data.map(item => {
-          posts.push(item);
-        });
-
-        this.setData({
-          posts: posts,
-          pageNumber: this.data.pageNumber + 1
-        });
-      }
-    });
-  },
+  
 
   select(e) {
     let objType = e.target.dataset.type;
     this.setData({selectPoster:objType})
   },
 
-  onShow: function () {
-    this.setData({
-      userAvatarUrl:app.globalData.USERAVATARURL,
-      username:app.globalData.USERNAME
-    })
-  },
 
   getMyRank: function () {
     http.get(`/my_rank`, {}, res => {

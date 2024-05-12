@@ -56,28 +56,17 @@ Page({
     })
   },
   registerUserBlur:function(e){
-    var objs={};
-    objs.username=e.detail.value;
-    var arr=wx.getStorageSync('users')||[];
-    var userinfo=arr.find(item=>{
-      return item.username==objs.username });
-      if( objs.username==''){
+      if( e.detail.value==''){
         this.setData({
           userDecide:false
         })
       }
       else{
-      if(!userinfo){
+      
    this.setData({
      userDecide:1
    })
   }
-  else{
-    this.setData({
-      userDecide:2
-    })
-  }
-}
   },
   registerPasswordBlur:function(e){
     if( e.detail.value==''){
@@ -142,44 +131,43 @@ Page({
     console.log(e.detail.value);
     var objs={};
     objs.username=e.detail.value.username;
+    objs.avatar=this.data.userAvatarUrl;
     objs.password=e.detail.value.password;
-    objs.phoneNumber=e.detail.value.phoneNumber;
-    objs.userAvatarUrl=this.data.userAvatarUrl;
-    objs.fans_num=0;
-    objs.follow_num=0;
-    objs.posts=0;
-    objs.loginDays=0;
-    objs.lastLogin={};
-    objs.lastLogin.year=0;
-    objs.lastLogin.month=0;
-    objs.lastLogin.date=0;
-    var arr=wx.getStorageSync('users')||[];
-    var userinfo=arr.find(item=>{
-      return item.username==objs.username });
-      if(userinfo){
-        wx.showToast({
-          title:'用户名已存在',
-          duration:2000
-        })
-      }
-      else{
+    objs.phone_number=e.detail.value.phoneNumber;
         if(this.data.iconDecide==true&&this.data.userAvatarUrlDecide==1&&this.data.passwordDecide==1&&this.data.passwordDecide==1&&this.data.phoneDecide==1&&this.data.userDecide==1){
-        arr.push(objs);
-        wx.setStorageSync('users', arr);
-        wx.showToast({
-          title: '注册成功',
-          duration:2000
-        }) 
-        wx.navigateTo({
-          url: '../login/login',
-        })
+          wx.request({
+            url: 'http://localhost:8080/user/register',
+            method:'POST',
+            data:objs,
+            header:{
+              'content-type':'application/json'
+            },
+            success(res){
+              console.log(res);
+              if(res.data=='注册成功'){
+                wx.showToast({
+                  title: '注册成功',
+                  duration:2000
+                }) 
+                wx.navigateTo({
+                  url: '../login/login',
+                })
+              }
+              else if(res.data=='用户名已注册'){
+                wx.showToast({
+                  title: '用户名已存在',
+                  duration:2000
+                }) 
+              }  
+            }
+          })
+        
       }
       else{
         wx.showToast({
           title: '注册失败',
           duration:2000
         }) 
-      }
       }
   },
   PasswordTouchEye:function(){

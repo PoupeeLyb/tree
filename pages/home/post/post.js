@@ -2,7 +2,7 @@ const app = getApp();
 const http = require("./../../../utils/http.js");
 const qiniuUtil = require("./../../../utils/qiniuToken.js");
 const config = require("./../../../config.js");
-
+var post_id=0;
 Page({
   data: {
     logs: [],
@@ -64,69 +64,71 @@ Page({
 
   /** 提交 */
   post: function () {
-    this.setData({ canPost:false})
-    let content = this.data.textContent;
-    let attachments = this.data.attachments;
-    let privateValue = this.data.private;
-    let username = this.data.name;
-    let mobile = this.data.phone;
-    //获取图片
-    this.data.imageArray.map(item=>{
-      attachments.push(item.uploadResult.key)
-    })
-
-    if(content == '' && attachments == ''){
+    this.setData({ canPost: false })
+    var post = {};
+    post.user_id = app.globalData.USER.id;
+    post.content = this.data.textContent;
+    console.log(post);
+    let attachments = this.data.imageArray;
+    console.log(this.data.imageArray);
+    if (this.data.content == '' && attachments == '') {
       wx.showLoading({
         title: '内容不能为空！',
       });
-      this.setData({ canPost: true })
-      setTimeout(function(){
-        wx.hideLoading();
-      },1500)
-      return false;
+    } else {
+      this.uploadPost(post);
     }
-
-    wx.showLoading({
-      title: '发送中..'
-    });
-
-    http.post('/post', {
-      content: content,
-      attachments: attachments,
-      private: privateValue,
-      username: username,
-      mobile:mobile
-    }, res => {
-      this.setData({ canPost: true })
-      wx.hideLoading();
-      console.log(res);
-      if(res.data.error_code == 0){
-        app.globalData.reloadHome = true;
-        wx.navigateBack({ comeBack: true });
-      }else{
-        wx.showToast({
-          title: res.data.error_message,
-          icon:'none'
-        });
-        setTimeout(function () {
-          wx.hideLoading();
-        }, 1500)
+  },
+  
+  uploadPost: function (post) {
+    wx.request({
+      url: 'http://localhost:8080/post/newpost',
+      method: 'POST',
+      data: post,
+      header: {
+        'content-type': 'application/json'
+      },
+      success: (res) => {
+        console.log(res);
+        post_id = res.data;
+        this.uploadAttachments(this.data.imageArray, 0);
+      },
+      fail: (err) => {
+        console.error(err);
+        // 处理上传失败的情况
       }
-    });
-
+    })
   },
-  getName: function (event) {
-    let value = event.detail.value;
-    this.setData({
-      name: value
-    });
+  
+  uploadAttachments: function (attachments, index) {
+    if (index < attachments.length) {
+      var attachment = {};
+      attachment.post_id = post_id;
+      attachment.imageUrl = attachments[index].localPath;
+      wx.request({
+        url: 'http://localhost:8080/attachment/post',
+        method: 'POST',
+        data: attachment,
+        header: {
+          'content-type': 'application/json'
+        },
+        success: (res) => {
+          console.log(res);
+          this.uploadAttachments(attachments, index + 1); // 递归调用下一个附件
+        },
+        fail: (err) => {
+          console.error(err);
+          // 处理上传失败的情况
+        }
+      })
+    } else {
+      wx.navigateBack({
+        url: '../index_2/index_2',
+      })
+    }
   },
-  getPhone: function (event){
-    let value = event.detail.value;
-    this.setData({
-      phone: value
-    });
-  },
+  
+  
 
   /**
    * 预览图片
@@ -139,15 +141,7 @@ Page({
     })
   },
 
-  /**
-   * 设置是否匿
-   */
-  setPrivate: function (event) {
-    this.setData({
-      private: event.detail.value
-    });
-  },
-
+  
   /**
    * 获取输入内容
    */

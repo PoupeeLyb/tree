@@ -4,11 +4,11 @@
     <image class="bg" src="/image/v2/bg.png"></image>
     </view>
     <view class="avatar-container" >
-      <image class="avatar" src='{{userAvatarUrl}}'></image>
+      <image class="avatar" src='{{user.avatar}}'></image>
       <image class="header-avatar-border" src="/image/v2/border.png"></image>
     </view>
 </view>
-<view class="nickname">{{username}}</view>
+<view class="nickname">{{user.username}}</view>
     <!--个人信息-->
     <view class="user-info">
       <view class="fans"  bindtap="openFollowList" data-t="2">
@@ -35,7 +35,7 @@
           <view class="user-info-image"><view class="image-content p4"><image src="/image/v2/p4.png"></image></view></view>
           <view class="user-info-data">
             <view class="user-info-flag">打卡天数</view>
-            <view class="user-info-word">{{user.loginDays}}</view>
+            <view class="user-info-word">{{user.login_days}}</view>
           </view>
         </view>
       </view>

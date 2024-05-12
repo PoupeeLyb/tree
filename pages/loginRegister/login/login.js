@@ -58,59 +58,62 @@ passwordInput:function(text){
 }
 },
 login:function(){
-  var app=getApp();
- var userinfos=wx.getStorageSync('users')||this.data.user;
- console.log(userinfos);
-  var userinfo=userinfos.find(item=>{
-    return item.username===this.data.username});
-  var location=userinfos.findIndex(item=>{
-      return item.username===this.data.username});
-if(userinfo){
-   if(userinfo.password==this.data.password){
-     var date=new Date();
-     var objs={};
-     objs.year=date.getFullYear();
-     objs.month=date.getMonth()+1;
-     objs.day=date.getDate();
-     if(userinfos[location].lastLogin.year==0){
-       userinfos[location].lastLogin=objs;
-       userinfos[location].loginDays++;
-       console.log(userinfos[location].las);
-       wx.setStorageSync('users',userinfos);
-     }
-     else{
-       if(userinfos[location].lastLogin.year<objs.year||(userinfos[location].lastLogin.year==objs.year&&userinfos[location].lastLogin.month<objs.month)||(userinfos[location].lastLogin.year==objs.year&&userinfos[location].lastLogin.month==objs.month&&userinfos[location].lastLogin.day<objs.day)){
-        userinfos[location].lastLogin=objs;
-        userinfos[location].loginDays++;
-        console.log(userinfos[location].lastLogin);
-        wx.setStorageSync('users',userinfos);
-       }
-     }
-     wx.showToast({
-       title: '登录成功',
-       duration:2000,
-       success:function(){
-        wx.switchTab({
-          url: '../../personal/index_2/personal',
-        })
-       app.globalData.USERNAME=userinfo.username;
-       app.globalData.USERAVATARURL=userinfo.userAvatarUrl;
-       }
+  var that=this;
+  wx.request({
+    url: 'http://localhost:8080/user/login',
+    method:'POST',
+    data:{
+      username:this.data.username,
+      password:this.data.password,
+    },
+    header:{
+      'content-type':'application/json'
+    },
+    success(res){
+      console.log(res);
+      if(res.data=="登录成功"){
+        wx.showToast({
+          title: '登录成功',
+          duration:2000,
+          success:function(){
+           wx.switchTab({
+             url: '../../personal/index_2/personal',
+           })
+          }
+      })
+      app.globalData.USERNAME=that.data.username;
+    }
+    else {
+      wx.showToast({
+        title: res.data,
+        duration:2000
      })
-   }
-   else{
-    wx.showToast({
-      title: '密码错误',
-      duration:2000
-   })
- }
-}
-else{
-  wx.showToast({
-    title: '用户名不存在',
-    duration:2000
- })
-}
+    }
+  }
+  })
+  
+// if(userinfo){
+//    if(userinfo.password==this.data.password){
+//      var date=new Date();
+//      var objs={};
+//      objs.year=date.getFullYear();
+//      objs.month=date.getMonth()+1;
+//      objs.day=date.getDate();
+//      if(userinfos[location].lastLogin.year==0){
+//        userinfos[location].lastLogin=objs;
+//        userinfos[location].loginDays++;
+//        console.log(userinfos[location].las);
+//        wx.setStorageSync('users',userinfos);
+//      }
+//      else{
+//        if(userinfos[location].lastLogin.year<objs.year||(userinfos[location].lastLogin.year==objs.year&&userinfos[location].lastLogin.month<objs.month)||(userinfos[location].lastLogin.year==objs.year&&userinfos[location].lastLogin.month==objs.month&&userinfos[location].lastLogin.day<objs.day)){
+//         userinfos[location].lastLogin=objs;
+//         userinfos[location].loginDays++;
+//         console.log(userinfos[location].lastLogin);
+//         wx.setStorageSync('users',userinfos);
+//        }
+//      }
+
 },
 touchEye:function(){
   if(!this.data.isShow){

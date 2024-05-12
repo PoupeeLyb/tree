@@ -3,5 +3,6 @@ App({
  globalData:{
    USERNAME:'',
    USERAVATARURL:'',
+   USER:{},
  }
 })
