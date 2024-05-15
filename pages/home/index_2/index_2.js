@@ -9,6 +9,7 @@ Page({
     praiseBorder: '',
     notPraiseBorder: '',
     posts: [],
+    follows:[],
     postType: 1,
     baseImageUrl: app.globalData.imageUrl,
     show: 0,
@@ -66,6 +67,7 @@ Page({
         pageNumber: this.data.initPageNumber,
         posts: []
       });
+      this.getFollows();
       this.getPost();
   },
   getPost: function () {
@@ -90,6 +92,12 @@ Page({
             var getPost = {};
             getPost.id = post.id;
             getPost.content = post.content;
+            getPost.follow = false; // 默认设置为 false
+            that.data.follows.forEach(item => {
+              if (item.id === post.user_id) {
+                getPost.follow = true;
+              }
+            });
             getPost.created_at = post.created_at;
             getPost.attachments = attachments[index];
             // 在这里调用获取用户信息的函数，并将用户信息存入帖子对象
@@ -101,6 +109,7 @@ Page({
                 that.setData({
                   posts: posts
                 });
+                console.log(that.data.posts);
               }
             });
           });
@@ -110,6 +119,7 @@ Page({
       }
     });
   },
+  
   getUser: function (userId, callback) {
     wx.request({
       url: 'http://localhost:8080/user/userInfoById?id=' + userId,
@@ -145,6 +155,95 @@ Page({
       });
     });
   },
+  getFollows:function(){
+    var that=this;
+    wx.request({
+      url: 'http://localhost:8080/userRelation/findFollow?userId='+app.globalData.USER.id,
+      method:'GET',
+      data:{},
+      header:{
+        'content-type':'application/json'
+      },
+      success(res){
+        console.log(res);
+        that.setData({
+          follows:res.data,
+        })
+        console.log(that.data.follows)
+      }
+    })
+  },
+  follow: function (e) {
+    let objId = e.target.dataset.obj;
+    let userRelation={};
+    userRelation.user_id=app.globalData.USER.id;
+    userRelation.related_user_id=this.data.posts[objId-1].user.id;
+    console.log(this.data.posts);
+    userRelation.relation_type='FOLLOW';
+    console.log(userRelation);
+    wx.request({
+      url: 'http://localhost:8080/userRelation/post',
+      method:'post',
+      data:userRelation,
+      header:{
+        'content-type':'application/json'
+      },
+      success(res){
+        console.log(res);
+      }
+    })
+    this.data.posts.forEach(item=>{
+      if(item.user.id===userRelation.related_user_id)
+        item.follow=true;
+    })
+    var that=this;
+    this.getUser(userRelation.related_user_id, function(user){
+      that.data.follows.push(user);
+      that.setData({
+        follows:that.data.follows,
+      })
+    })
+    this.setData({
+      posts:this.data.posts,
+    })
+   
+  },
+  cancelFollow: function(e) {
+    let objId = e.target.dataset.obj;
+    let userRelation = {};
+    userRelation.user_id = app.globalData.USER.id;
+    userRelation.related_user_id = this.data.posts[objId - 1].user.id;
+    console.log(userRelation);
+    var that=this;
+    wx.request({
+      url: 'http://localhost:8080/userRelation/delete/' + userRelation.user_id + '/' + userRelation.related_user_id,
+      method: 'DELETE',
+      data: userRelation,
+      header: {
+        'content-type': 'application/json'
+      },
+      success(res) {
+        console.log(res);
+        // 取消关注成功后，更新本地数据
+        let posts = that.data.posts;
+        posts.forEach(item => {
+          if (item.user.id === userRelation.related_user_id)
+            item.follow = false;
+        });
+        let follows = that.data.follows;
+        let index = follows.findIndex(user => user.id === userRelation.related_user_id);
+        if (index !== -1) {
+          follows.splice(index, 1);
+        }
+        that.setData({
+          posts: posts,
+          follows: follows
+        });
+      }
+    });
+  },
+  
+  
   /**
    * 点赞话题
    */
@@ -155,22 +254,7 @@ Page({
     });
   },
 
-  /**
-   * 分享
-   */
-  onShareAppMessage: function (res) {
-    return {
-      title: 'hi，同学，有人跟你表白了',
-      path: '/pages/home/index_2/index_2',
-      imageUrl:'http://img.qiuhuiyi.cn/share1.jpg',
-      success: function (res) {
-        // 转发成功
-      },
-      fail: function (res) {
-        // 转发失败
-      }
-    }
-  },
+  
 
   /**
    * 获取具体类型的贴子
@@ -566,47 +650,8 @@ Page({
     })
   },
 
-  /**
-   * 关注
-   */
-  follow: function (e) {
-    let objId = e.target.dataset.obj;
-    http.post('/follow', {obj_id: objId,obj_type: 1}, res=> {
-      let follow = res.data.data;
-      let post = this.data.posts;
-      let newPost = post.map(item => {
-        if (item.id == follow.obj_id) {
-          item.follow = true;
-        }
-        return item;
-      });
+  
 
-      this.setData({
-        posts: newPost
-      });
-    });
-  },
-
-  /**
-   * 取消关注
-   */
-  cancelFolllow: function (e) {
-    let objId = e.target.dataset.obj;
-    http.put(`/cancel/${objId}/follow/1`, {},res=> {
-      let follow = res.data.data;
-      let post = this.data.posts;
-      let newPost = post.map(item => {
-        if (item.id == objId) {
-          item.follow = false;
-        }
-        return item;
-      });
-      this.setData({
-        posts: newPost
-      });
-    });
-
-  },
 
   topic:function(){
     http.get(`/topic`, {}, res=> {

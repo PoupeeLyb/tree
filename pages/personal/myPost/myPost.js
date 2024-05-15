@@ -128,6 +128,7 @@ Page({
                var getPost = {};
                getPost.id = post.id;
                getPost.user = that.data.user;
+               getPost.can_delete=1;
                getPost.content = post.content;
                getPost.created_at = post.created_at;
                getPost.attachments = attachments[index];
@@ -164,25 +165,36 @@ Page({
      },    
   deletePost: function (e) {
     let objId = e.target.id;
+    console.log(objId);
+    
     wx.showModal({
       title: '提示',
       content: '确定删除吗?',
       success: res=> {
         if (res.confirm) {
-          http.httpDelete(`/delete/${objId}/post`, {}, res => {
-            let result = res.data.data;
-            if (result == 1) {
-              let newPosts = this.data.posts.filter((item, index) => {
-                if (item.id != objId) {
-                  return item;
-                }
-              });
-
-              this.setData({
-                posts: newPosts
-              });
-            } 
-          });
+          let that=this;
+          wx.request({
+            url: 'http://localhost:8080/post/delete/'+objId,
+            method:'delete',
+            data:{},
+            header:{
+              'content-type':'application/json'
+            },
+            success(res){
+              console.log(res.data);
+              if(res.data=="删除成功"){
+                let newPosts = that.data.posts.filter((item, index) => {
+                  if (item.id != objId) {
+                    return item;
+                  }
+                });
+  
+                that.setData({
+                  posts: newPosts
+                });
+              } 
+            }
+          })
         } else if (res.cancel) {
           console.log('用户点击取消')
         }
@@ -191,20 +203,23 @@ Page({
   },
   follow: function (e) {
     let objId = e.target.dataset.obj;
-    http.post('/follow', {obj_id: objId,obj_type: 1}, res=> {
-      let follow = res.data.data;
-      let post = this.data.posts;
-      let newPost = post.map(item => {
-        if (item.id == follow.obj_id) {
-          item.follow = true;
-        }
-        return item;
-      });
-
-      this.setData({
-        posts: newPost
-      });
-    });
+    let userRelation={};
+    userRelation.user_id=app.globalData.USER.id;
+    userRelation.related_user_id=this.data.posts[objId].user.id;
+    console.log(this.data.posts);
+    userRelation.relation_type='FOLLOW';
+    console.log(userRelation);
+    wx.request({
+      url: 'http://localhost:8080/userRelation/post',
+      method:'post',
+      data:userRelation,
+      header:{
+        'content-type':'application/json'
+      },
+      success(res){
+        console.log(res);
+      }
+    })
   },
   cancelFolllow: function (e) {
     let objId = e.target.dataset.obj;

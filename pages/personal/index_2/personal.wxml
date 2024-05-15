@@ -12,11 +12,11 @@
     <!--个人信息-->
     <view class="user-info">
       <view class="fans"  bindtap="openFollowList" data-t="2">
-        <view>{{user.fans_num}}</view>
+        <view>{{fans.length}}</view>
         <view>粉丝</view>
       </view>
       <view class="follow" bindtap="openFollowList" data-t="1">
-        <view>{{user.follow_num}}</view>
+        <view>{{follows.length}}</view>
         <view>关注</view>
       </view>
     </view>

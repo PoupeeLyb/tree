@@ -16,7 +16,8 @@
                     id="{{item.id}}"
                     wx:if="{{item.can_delete}}" 
                     bindtap='deletePost'></image>
-            <image src="/image/v2/index-collect.png" wx:if="{{item.follow}}" data-obj="{{item.id}}"  bindtap="cancelFolllow"></image>
+                   
+            <image src="/image/v2/index-collect.png" wx:if="{{item.follow}}" data-obj="{{item.id}}"  bindtap="cancelFolllow"> </image>
             <image src="/image/v2/index-not-collect.png" wx:if="{{!item.follow}}" data-obj="{{item.id}}" bindtap="follow"></image>
           </view>
         </view>

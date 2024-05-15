@@ -4,6 +4,8 @@ const app = getApp();
 Page({
   data: {
     user: {},
+    fans:[],
+    follows:[],
     getAttachment:[],
     newLetterNumber: 0,
     serviceId: '',
@@ -56,6 +58,8 @@ Page({
        app.globalData.USER=res.data;
        that.getLastloginDay(app.globalData.USER);
        that.getPost(that.data.user.id);
+       that.getFans(that.data.user.id);
+       that.getFollows(that.data.user.id);
       }
     })
     },
@@ -154,6 +158,42 @@ this.setData({
         }
       });
     });
+  },
+  getFans:function(e){
+    var that=this;
+    wx.request({
+      url: 'http://localhost:8080/userRelation/findFans?userId='+e,
+      method:'GET',
+      data:{},
+      header:{
+        'content-type':'application/json'
+      },
+      success(res){
+        console.log(res);
+        that.setData({
+          fans:res.data,
+        })
+        console.log(that.data.follows)
+      }
+    })
+  },
+  getFollows:function(e){
+    var that=this;
+    wx.request({
+      url: 'http://localhost:8080/userRelation/findFollow?userId='+e,
+      method:'GET',
+      data:{},
+      header:{
+        'content-type':'application/json'
+      },
+      success(res){
+        console.log(res);
+        that.setData({
+          follows:res.data,
+        })
+        console.log(that.data.follows)
+      }
+    })
   },
   
   /**

@@ -16,7 +16,9 @@ Page({
   onLoad: function (option) {
     let id = option.id
     let objType = option.objType
-
+this.setData({
+  objType:objType,
+})
     if(objType == 1){
       wx.setNavigationBarTitle({ title: "关注列表"});
     }else{
@@ -48,28 +50,47 @@ Page({
    * 获取贴子列表
    */
   getList:function(){
-    http.get(`/follow/page?page_size=${this.data.pageSize}&page_number=${this.data.pageNumber}&type=${this.data.objType}&user_id=${this.data.userId}`,{},res => {
-      wx.hideLoading();
-      this.setData({
-        showGeMoreLoadin: false
-      })
-      let list = this.data.list;
-      if(res.data.data){
-        if (res.data.data.page_data.length > 0) {
-          res.data.data.page_data.map(item => {
-            list.push(item);
-          });
-          this.setData({
-            list: list,
-            pageNumber: this.data.pageNumber + 1              
-          });
-        } else {
-          this.setData({
-            notDataTips: true
-          });
-        }
-      }
-    });
+    if(this.data.objType==1){
+      this.getFollows(app.globalData.USER.id);
+    }
+    else{
+      this.getFans(app.globalData.USER.id);
+    }
   },
-
+  getFans:function(e){
+    var that=this;
+    wx.request({
+      url: 'http://localhost:8080/userRelation/findFans?userId='+e,
+      method:'GET',
+      data:{},
+      header:{
+        'content-type':'application/json'
+      },
+      success(res){
+        console.log(res);
+        that.setData({
+          list:res.data,
+        })
+        console.log(that.data.follows)
+      }
+    })
+  },
+  getFollows:function(e){
+    var that=this;
+    wx.request({
+      url: 'http://localhost:8080/userRelation/findFollow?userId='+e,
+      method:'GET',
+      data:{},
+      header:{
+        'content-type':'application/json'
+      },
+      success(res){
+        console.log(res);
+        that.setData({
+          list:res.data,
+        })
+        console.log(that.data.follows)
+      }
+    })
+  }
 })

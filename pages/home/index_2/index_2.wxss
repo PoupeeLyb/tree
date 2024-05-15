@@ -9,7 +9,14 @@ page{
   display: flex;
   flex-direction: column;
 }
-
+.followContent{
+  display:inline;
+  flex-direction: row;
+  align-items: center;
+  font-size: 30rpx;
+  padding-top: 10rpx;
+  color: rgb(6, 160, 250);
+}
 /**导航栏**/
 .navigation{
   width: 100%;
@@ -259,7 +266,7 @@ page{
   height: 50rpx;
 }
 
-/** 表白墙 **/
+/** 树洞 **/
 .body-flag{
   width: 100%;
   display: flex;

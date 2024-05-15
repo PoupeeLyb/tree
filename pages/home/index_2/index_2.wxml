@@ -60,13 +60,10 @@
             </view>
           </view>
           <view class="icon-item">
-            <image  src="/image/v2/index-delete.png" 
-                    id="{{item.id}}"
-                    wx:if="{{item.can_delete}}" 
-                    bindtap='deletePost'></image>
-            <image src="/image/v2/index-collect.png" wx:if="{{item.follow}}" data-obj="{{item.id}}"  bindtap="cancelFolllow"></image>
+            <image src="/image/v2/index-collect.png" wx:if="{{item.follow}}" data-obj="{{item.id}}"  bindtap="cancelFollow"></image>
             <image src="/image/v2/index-not-collect.png" wx:if="{{!item.follow}}" data-obj="{{item.id}}" bindtap="follow"></image>
           </view>
+         
         </view>
         <view class="item-content">
           <view class="item-content-word" wx:if="{{item.content}}">{{item.content}}</view>
