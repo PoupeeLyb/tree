@@ -14,4 +14,8 @@ public interface PostService {
     Integer countPosts();
     //新增post
     void add(Post post,Integer num);
+    //删除
+    void deleteById(Integer id);
+    // 更新ID
+    void updateIdsAfterDeletion(Integer id);
 } 

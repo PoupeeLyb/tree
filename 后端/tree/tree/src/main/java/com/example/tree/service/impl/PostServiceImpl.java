@@ -36,4 +36,14 @@ public class PostServiceImpl implements PostService {
         post.setCreatedat(LocalDate.now());
         postMapper.add(post,num);
     }
+    @Override
+    //删除
+    public void deleteById(Integer id){
+      postMapper.deleteById(id);
+    }
+    @Override
+    //删除后更新id
+    public void updateIdsAfterDeletion(Integer id){
+      postMapper.updateIdsAfterDeletion(id);
+    }
 }

@@ -1,13 +1,13 @@
 package com.example.tree.pojo;
 
-import javax.management.relation.RelationType;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
 @Data
@@ -18,14 +18,16 @@ public class UserRelation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    
+    @JsonProperty("user_id")
+    private Integer userId;
 
-    @ManyToOne
-    @JoinColumn(name = "related_user_id")
-    private User relatedUser;
+    
+    @JsonProperty("related_user_id")
+    private Integer relatedUserId;
 
+    @JsonProperty("relation_type")
+    @Enumerated(EnumType.STRING)
     private RelationType relationType;
 
     // Getters and setters

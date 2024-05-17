@@ -3,7 +3,9 @@ package com.example.tree.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,7 +61,8 @@ public class PostController {
         }
     }
    }
-    
+   
+
    @GetMapping("/allpost")
    public String getAllPost() {
     List<Post> posts = postService.findAll();
@@ -78,5 +81,10 @@ public class PostController {
         }
     }
    }
-   
+   @DeleteMapping("/delete/{id}")
+   public String deletePost(@PathVariable Integer id){
+    postService.deleteById(id);
+    postService.updateIdsAfterDeletion(id);
+    return "删除成功";
+   }
 }

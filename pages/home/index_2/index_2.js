@@ -1,3 +1,5 @@
+const { get } = require("../../../utils/http");
+
 const app = getApp()
 
 Page({
@@ -10,6 +12,7 @@ Page({
     notPraiseBorder: '',
     posts: [],
     follows:[],
+    praises:[],
     postType: 1,
     baseImageUrl: app.globalData.imageUrl,
     show: 0,
@@ -67,7 +70,7 @@ Page({
         pageNumber: this.data.initPageNumber,
         posts: []
       });
-      this.getFollows();
+      this.getPraises();
       this.getPost();
   },
   getPost: function () {
@@ -81,37 +84,49 @@ Page({
       },
       success(res) {
         console.log(res);
-        var postPromises = [];
-        res.data.forEach(post => {
-          postPromises.push(that.getAttachment(post.id));
-        });
-  
+        var postPromises = res.data.map(post => that.getAttachment(post.id));
         Promise.all(postPromises).then((attachments) => {
           var posts = [];
-          res.data.forEach((post, index) => {
-            var getPost = {};
-            getPost.id = post.id;
-            getPost.content = post.content;
-            getPost.follow = false; // 默认设置为 false
-            that.data.follows.forEach(item => {
-              if (item.id === post.user_id) {
-                getPost.follow = true;
-              }
+          var praisePromises = res.data.map(post => that.getPraises(post.id));
+          Promise.all(praisePromises).then((praisesArray) => {
+            res.data.forEach((post, index) => {
+              var getPost = {
+                id: post.id,
+                content: post.content,
+                follow: false, // 默认设置为 false
+                praise: false,
+                praises: praisesArray[index],
+                created_at: post.created_at,
+                attachments: attachments[index],
+              };
+              
+              praisesArray[index].forEach(praise => {
+                if (praise&&praise.id === app.globalData.USER.id) {
+                  getPost.praise = true;
+                }
+              });
+    
+              that.data.follows.forEach(item => {
+                if (item.id === post.user_id) {
+                  getPost.follow = true;
+                }
+              });
+    
+              // 在这里调用获取用户信息的函数，并将用户信息存入帖子对象
+              that.getUser(post.user_id, function(user) {
+                getPost.user = user;
+                posts.push(getPost);
+                if (posts.length === res.data.length) {
+                  // 当所有帖子都处理完毕后，更新页面数据
+                  that.setData({
+                    posts: posts
+                  });
+                  console.log(that.data.posts);
+                }
+              });
             });
-            getPost.created_at = post.created_at;
-            getPost.attachments = attachments[index];
-            // 在这里调用获取用户信息的函数，并将用户信息存入帖子对象
-            that.getUser(post.user_id, function(user) {
-              getPost.user = user;
-              posts.push(getPost);
-              if (posts.length === res.data.length) {
-                // 当所有帖子都处理完毕后，更新页面数据
-                that.setData({
-                  posts: posts
-                });
-                console.log(that.data.posts);
-              }
-            });
+          }).catch((error) => {
+            console.error(error);
           });
         }).catch((error) => {
           console.error(error);
@@ -155,66 +170,89 @@ Page({
       });
     });
   },
-  getFollows:function(){
-    var that=this;
+  
+  getFollows: function() {
+    var that = this;
     wx.request({
-      url: 'http://localhost:8080/userRelation/findFollow?userId='+app.globalData.USER.id,
-      method:'GET',
-      data:{},
-      header:{
-        'content-type':'application/json'
+      url: 'http://localhost:8080/userRelation/findFollow?userId=' + app.globalData.USER.id,
+      method: 'GET',
+      data: {},
+      header: {
+        'content-type': 'application/json'
       },
-      success(res){
+      success(res) {
         console.log(res);
         that.setData({
-          follows:res.data,
-        })
-        console.log(that.data.follows)
+          follows: res.data,
+        });
+        console.log(that.data.follows);
       }
-    })
+    });
   },
+  
+  getPraises: function(postId) {
+    console.log(postId);
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: 'http://localhost:8080/praise/get?postId=' + postId,
+        method: 'GET',
+        data: {},
+        header: {
+          'content-type': 'application/json'
+        },
+        success(res) {
+          console.log(res);
+          resolve(res.data);
+        },
+        fail(error) {
+          reject(error);
+        }
+      });
+    });
+  },
+  
   follow: function (e) {
     let objId = e.target.dataset.obj;
-    let userRelation={};
-    userRelation.user_id=app.globalData.USER.id;
-    userRelation.related_user_id=this.data.posts[objId-1].user.id;
+    let userRelation = {};
+    userRelation.user_id = app.globalData.USER.id;
+    userRelation.related_user_id = this.data.posts[objId - 1].user.id;
     console.log(this.data.posts);
-    userRelation.relation_type='FOLLOW';
+    userRelation.relation_type = 'FOLLOW';
     console.log(userRelation);
     wx.request({
       url: 'http://localhost:8080/userRelation/post',
-      method:'post',
-      data:userRelation,
-      header:{
-        'content-type':'application/json'
+      method: 'post',
+      data: userRelation,
+      header: {
+        'content-type': 'application/json'
       },
-      success(res){
+      success(res) {
         console.log(res);
       }
-    })
-    this.data.posts.forEach(item=>{
-      if(item.user.id===userRelation.related_user_id)
-        item.follow=true;
-    })
-    var that=this;
-    this.getUser(userRelation.related_user_id, function(user){
+    });
+    this.data.posts.forEach(item => {
+      if (item.user.id === userRelation.related_user_id)
+        item.follow = true;
+    });
+    var that = this;
+    this.getUser(userRelation.related_user_id, function(user) {
       that.data.follows.push(user);
       that.setData({
-        follows:that.data.follows,
-      })
-    })
+        follows: that.data.follows,
+      });
+    });
     this.setData({
-      posts:this.data.posts,
-    })
-   
+      posts: this.data.posts,
+    });
   },
+  
   cancelFollow: function(e) {
     let objId = e.target.dataset.obj;
     let userRelation = {};
     userRelation.user_id = app.globalData.USER.id;
     userRelation.related_user_id = this.data.posts[objId - 1].user.id;
     console.log(userRelation);
-    var that=this;
+    var that = this;
     wx.request({
       url: 'http://localhost:8080/userRelation/delete/' + userRelation.user_id + '/' + userRelation.related_user_id,
       method: 'DELETE',
@@ -243,18 +281,62 @@ Page({
     });
   },
   
-  
   /**
-   * 点赞话题
+   * 点赞
    */
-  praiseTopic: function (e) {
-    let id = e.currentTarget.dataset.id;
-    http.post('/praise/'+id+'/topic', {}, function (res) {
-      this.setData({topic:res.data.data});
+  praise: function (event) {
+    let objId = event.target.dataset.obj;
+    console.log(objId);
+    var praise = {};
+    praise.post_id = objId;
+    praise.user_id = app.globalData.USER.id;
+    console.log(praise);
+    let objType = 1;
+    wx.request({
+      url: 'http://localhost:8080/praise/post',
+      method: 'POST',
+      data: praise,
+      header: {
+        'content-type': 'application/json'
+      },
+      success(res) {
+        console.log(res);
+      }
+    });
+      this.data.posts[objId-1].praises.push(app.globalData.USER);
+      this.data.posts[objId-1].praise=1;
+    this.setData({
+      posts: this.data.posts,
     });
   },
-
-  
+ cancelPraise:function(event){
+  let objId = event.target.dataset.obj;
+  console.log(objId);
+  var praise = {};
+  praise.post_id = objId;
+  praise.user_id = app.globalData.USER.id;
+  console.log(praise);
+  let objType = 1;
+  wx.request({
+    url: 'http://localhost:8080/praise/delete/'+praise.post_id+'/'+praise.user_id,
+    method: 'delete',
+    data: {},
+    header: {
+      'content-type': 'application/json'
+    },
+    success(res) {
+      console.log(res);
+    }
+  });
+  let index = this.data.posts[objId-1].praises.findIndex(user => user.id === app.globalData.USER.id);
+        if (index !== -1) {
+          this.data.posts[objId-1].praises.splice(index, 1);
+        }
+        this.data.posts[objId-1].praise=false;
+        this.setData({
+          posts: this.data.posts,
+        });
+ }, 
 
   /**
    * 获取具体类型的贴子
@@ -416,34 +498,6 @@ Page({
     });
   },
 
-  /**
-   * 点赞
-   */
-  praise: function (event) {
-    let objId = event.target.dataset.obj;
-    let objType = 1;
-    this.setData({
-      show: 0,
-      hidden: false,
-      showCommentInput: false
-    });
-    http.post(`/praise`,{ obj_id: objId, obj_type: objType }, res => {
-        let postList = this.data.posts;
-        let repData = res.data
-        if(repData.error_code == 0 && repData.data != null){
-          let newPostList = postList.map(item => {
-            if (objId == item.id) {
-              item.praises.push(res.data.data);
-            }
-            return item;
-          });
-          //重新赋值，更新数据列表
-          this.setData({
-            posts: newPostList
-          });
-        }
-      });
-  },
 
   /**
    * 激活评论框
