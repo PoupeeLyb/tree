@@ -70,7 +70,6 @@ Page({
         pageNumber: this.data.initPageNumber,
         posts: []
       });
-      this.getPraises();
       this.getPost();
   },
   getPost: function () {
@@ -117,6 +116,18 @@ Page({
                 getPost.user = user;
                 posts.push(getPost);
                 if (posts.length === res.data.length) {
+                  // 如果选择的是“最热”，对帖子进行排序
+              if (that.data.postType == 4) {
+                posts.sort((a, b) => {
+                  let aScore = a.praises.length ;
+                  let bScore = b.praises.length ;
+                  return bScore - aScore;
+                });
+              }
+              // 如果选择的是“收藏”，过滤出关注的帖子
+              if (that.data.postType == 2) {
+                posts = posts.filter(post => post.follow == true);
+              }
                   // 当所有帖子都处理完毕后，更新页面数据
                   that.setData({
                     posts: posts
@@ -388,20 +399,29 @@ Page({
    * 搜索
    */
   search:function(){
+    const keyword = this.data.filter.toLowerCase();
+    console.log(keyword);
+    if(keyword!=''){
+    const filtered = this.data.posts.filter(post => post.content.toLowerCase().includes(keyword));
+    console.log(filtered);
     this.setData({
-      postType: 1,
-      posts: []
-    })
-
-    this.setData({
-      pageNumber: this.data.initPageNumber
+      posts: filtered
     });
-    wx.showLoading({
-      title: '搜索中...',
-    });
+  }
+  else{
     this.getPost();
+  }
   },
 
+  /**
+   * 获取搜索框的内容
+   */
+  getFilter: function (event){
+    let content = event.detail.value;
+    this.setData({
+      filter: content
+    })
+  },
   /**
    * 进入新消息列表
    */
@@ -415,21 +435,14 @@ Page({
    * 下拉刷新，获取最新的贴子
    */
   onPullDownRefresh: function () {
-    this.setData({
-      pageNumber: this.data.initPageNumber,
-      posts:[]
-    });
-    this.getPost();
+   
   },
 
   /**
    * 上拉加载更多
    */
   onReachBottom: function () {
-    this.setData({
-      showGeMoreLoadin: true
-    });
-    this.getPost();
+   
   },
 
   /** 
@@ -525,18 +538,7 @@ Page({
     this.setData({
       commentContent: content
     })
-  },
-
-  /**
-   * 获取搜索框的内容
-   */
-  getFilter: function (event){
-    let content = event.detail.value;
-    this.setData({
-      filter: content
-    })
-  },
-  
+  },  
   /**
    * 提交评论
    */

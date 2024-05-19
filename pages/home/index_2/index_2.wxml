@@ -4,12 +4,12 @@
   <view class="navigation">
     <view class="navigation-item"><view data-type="1" bindtap="selected" class="select-tab">全部</view><view class='{{select==1?"select-tab-bootom":""}}'></view></view>
     <view class="navigation-item"><view data-type="4" bindtap="selected" class="select-tab">最热</view><view class='{{select==4?"select-tab-bootom":""}}'></view></view>
-    <view class="navigation-item"><view data-type="2" bindtap="selected" class="select-tab">收藏</view><view class='{{select==2?"select-tab-bootom":""}}'></view></view>
+    <view class="navigation-item"><view data-type="2" bindtap="selected" class="select-tab">关注</view><view class='{{select==2?"select-tab-bootom":""}}'></view></view>
     <view class='search-container'>
         <view class='search'>
           <input type='text' 
                 class='search-input' 
-                placeholder="输入你要找的表白消息"         
+                placeholder="输入你要找的树洞消息"         
                 bindinput='getFilter'/>
           <view class='search-image' bindtap='search'>
               <image mode="" src='/image/v2/index-search.png'></image>
@@ -20,21 +20,7 @@
 
   <!-- 内容 -->
   <view class='body-content'>
-    <!-- 话题 -->
-    <view class="topic-content" bindtap='openTopic' data-id="{{topic.id}}" wx:if="{{showTopic}}">
-      <view class="topic-title"><view class="title"><view>今日话题</view></view></view>
-      <image class="topic-image" mode="aspectFill" src="{{baseImageUrl+topic.attachments[0]}}"></image>
-      <view class="topic-data">
-        <view class="topic-data-content">{{topic.content}}</view>
-      </view>
-      <view class="topic-bottom">
-        <view class="topic-bottom-content">
-          <view class="topic-bottom-left"><image src="/image/v2/index-browse.png"></image><view>{{topic.view_number}}次</view></view>
-          <view class="topic-bottom-middle"><image src="/image/v2/index-topic-zan.png"></image><view>{{topic.praise_number}}</view></view>
-          <view class="topic-bottom-right"><image src="/image/v2/index-topic-comment.png"></image><view>{{topic.comment_number}}</view></view>
-        </view>
-      </view>
-    </view>
+   
     <!-- 树洞flag -->
     <view class="body-flag" wx:if="{{showTopic}}">
       <view class="flag">树洞</view>
@@ -156,7 +142,7 @@
     </view>
   </view>
 
-  <!-- 发布表白信息 -->
+  <!-- 发布树洞信息 -->
   <view class='post-container'>
     <view class='wall'></view>
     <view class='post'>
