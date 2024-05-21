@@ -103,9 +103,9 @@
                     data-refid="{{sub.id}}" 
                     data-objtype='1'>
                 <image src="{{sub.commenter.avatar}}"></image>
-                <view class="comment-name"  wx:if="{{sub.author == 0 && sub.commenter.supertube != 1}}">{{sub.commenter.nickname}}</view>
-                <view class="comment-name"  wx:if="{{sub.author == 1 && sub.commenter.supertube != 1}}">{{sub.commenter.nickname}}(楼主)</view>
-                <view class="comment-name"  wx:if="{{sub.commenter.supertube == 1}}">{{sub.commenter.nickname}}(超管)</view>
+                <view class="comment-name" >{{sub.commenter.username}}</view>
+                <view class="comment-name"  wx:if="{{sub.author == 1 && sub.commenter.supertube != 1}}">{{sub.commenter.username}}(楼主)</view>
+                <view class="comment-name"  wx:if="{{sub.commenter.supertube == 1}}">{{sub.commenter.username}}(超管)</view>
                 <view class="comment-word">：{{sub.content}}</view>
               </view>
 

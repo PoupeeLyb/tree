@@ -70,6 +70,7 @@ Page({
         pageNumber: this.data.initPageNumber,
         posts: []
       });
+      this.getFollows();
       this.getPost();
   },
   getPost: function () {
@@ -87,54 +88,80 @@ Page({
         Promise.all(postPromises).then((attachments) => {
           var posts = [];
           var praisePromises = res.data.map(post => that.getPraises(post.id));
+          var commentPromises = res.data.map(post => that.getComment(post.id));
           Promise.all(praisePromises).then((praisesArray) => {
-            res.data.forEach((post, index) => {
-              var getPost = {
-                id: post.id,
-                content: post.content,
-                follow: false, // 默认设置为 false
-                praise: false,
-                praises: praisesArray[index],
-                created_at: post.created_at,
-                attachments: attachments[index],
-              };
-              
-              praisesArray[index].forEach(praise => {
-                if (praise&&praise.id === app.globalData.USER.id) {
-                  getPost.praise = true;
-                }
-              });
-    
-              that.data.follows.forEach(item => {
-                if (item.id === post.user_id) {
-                  getPost.follow = true;
-                }
-              });
-    
-              // 在这里调用获取用户信息的函数，并将用户信息存入帖子对象
-              that.getUser(post.user_id, function(user) {
-                getPost.user = user;
-                posts.push(getPost);
-                if (posts.length === res.data.length) {
-                  // 如果选择的是“最热”，对帖子进行排序
-              if (that.data.postType == 4) {
-                posts.sort((a, b) => {
-                  let aScore = a.praises.length ;
-                  let bScore = b.praises.length ;
-                  return bScore - aScore;
+            Promise.all(commentPromises).then((commentsArray) => {
+              var userPromises = [];
+  
+              commentsArray.forEach((comments, postIndex) => {
+                comments.forEach(comment => {
+                  userPromises.push(that.getUserPromise(comment.commenter_id));
                 });
-              }
-              // 如果选择的是“收藏”，过滤出关注的帖子
-              if (that.data.postType == 2) {
-                posts = posts.filter(post => post.follow == true);
-              }
-                  // 当所有帖子都处理完毕后，更新页面数据
-                  that.setData({
-                    posts: posts
-                  });
-                  console.log(that.data.posts);
-                }
               });
+  
+              Promise.all(userPromises).then(users => {
+                var userIndex = 0;
+                res.data.forEach((post, postIndex) => {
+                  var getPost = {
+                    id: post.id,
+                    content: post.content,
+                    follow: false, // 默认设置为 false
+                    praise: false,
+                    praises: praisesArray[postIndex],
+                    created_at: post.created_at,
+                    attachments: attachments[postIndex],
+                    comments: Array.isArray(commentsArray[postIndex]) ? commentsArray[postIndex].map(comment => {
+                      var commenter = users[userIndex++];
+                      return {
+                        id: comment.id,
+                        commenter: commenter,
+                        content: comment.content
+                      };
+                    }) : []
+                  };
+  
+                  praisesArray[postIndex].forEach(praise => {
+                    if (praise && praise.id === app.globalData.USER.id) {
+                      getPost.praise = true;
+                    }
+                  });
+  
+                  that.data.follows.forEach(item => {
+                    if (item.id === post.user_id) {
+                      getPost.follow = true;
+                    }
+                  });
+  
+                  // 在这里调用获取用户信息的函数，并将用户信息存入帖子对象
+                  that.getUser(post.user_id, function(user) {
+                    getPost.user = user;
+                    posts.push(getPost);
+                    if (posts.length === res.data.length) {
+                      // 如果选择的是“最热”，对帖子进行排序
+                      if (that.data.postType == 4) {
+                        posts.sort((a, b) => {
+                          let aScore = a.praises.length+a.comments.length*2;
+                          let bScore = b.praises.length+b.comments.length*2;
+                          return bScore - aScore;
+                        });
+                      }
+                      // 如果选择的是“收藏”，过滤出关注的帖子
+                      if (that.data.postType == 2) {
+                        posts = posts.filter(post => post.follow == true);
+                      }
+                      // 当所有帖子都处理完毕后，更新页面数据
+                      that.setData({
+                        posts: posts
+                      });
+                      console.log(that.data.posts);
+                    }
+                  });
+                });
+              }).catch((error) => {
+                console.error(error);
+              });
+            }).catch((error) => {
+              console.error(error);
             });
           }).catch((error) => {
             console.error(error);
@@ -159,6 +186,26 @@ Page({
         // 调用回调函数，并传入用户信息
         callback(res.data);
       }
+    });
+  },
+  
+  getUserPromise: function (userId) {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: 'http://localhost:8080/user/userInfoById?id=' + userId,
+        method: 'GET',
+        data: {},
+        header: {
+          'content-type': 'application/json'
+        },
+        success(res) {
+          console.log(res);
+          resolve(res.data);
+        },
+        fail(error) {
+          reject(error);
+        }
+      });
     });
   },
   
@@ -221,6 +268,34 @@ Page({
       });
     });
   },
+  
+  getComment: function(postId) {
+    return new Promise((resolve, reject) => {
+      wx.request({
+        url: 'http://localhost:8080/comment/get?postId=' + postId,
+        method: 'GET',
+        data: {},
+        header: {
+          'content-type': 'application/json'
+        },
+        success(res) {
+          console.log(res);
+          if (Array.isArray(res.data)) {
+            resolve(res.data);
+          } else {
+            var array=[];
+            resolve(array);
+          }
+        },
+        fail(error) {
+          reject(error);
+        }
+      });
+    });
+  },
+  
+    
+  
   
   follow: function (e) {
     let objId = e.target.dataset.obj;
@@ -543,71 +618,73 @@ Page({
    * 提交评论
    */
   sendComment: function (e) {
-
-    if (!this.data.canComment){
+    if (!this.data.canComment) {
       return false;
     }
-
-    this.setData({ canComment: false })
-
+  
+    this.setData({ canComment: false });
+  
     wx.showLoading({
       title: '发送中',
     });
-    
-    let content = this.data.commentContent;
-    let objId = this.data.commentObjId;
-    let type = this.data.commentType;
-    let refcommentId = this.data.refcommentId;
-    if (content == '') {
+  
+    var comment = {};
+    comment.content = this.data.commentContent;
+    comment.post_id = this.data.commentObjId;
+    comment.commenter_id = app.globalData.USER.id;
+    comment.ref_comment_id = this.data.refcommentId;
+    var that = this;
+  
+    if (comment.content == '') {
       wx.showToast({
         title: '内容不能为空',
         icon: 'none'
-      })
-      this.setData({ canComment:true})
+      });
+      this.setData({ canComment: true });
       return false;
-    }
-
-    http.post('/comment', {
-      content: content,
-      obj_id: objId,
-      type: type,
-      ref_comment_id: refcommentId
-    }, res=> {
-      this.setData({ canComment:true})
-      wx.hideLoading();
-      this.setData({
-        commentContent: '',
-        commentObjId: '',
-        commentType: '',
-        showCommentInput: false,
-        refcommentId: ''
-      })
-
-      if(res.data.error_code == 0){
-        let postList = this.data.posts;
-        let newPostList = postList.map(item => {
-          if (objId == item.id) {
-            item.comments.push(res.data.data);
-          }
-          return item;
-        });
+    } else {
+      wx.request({
+        url: 'http://localhost:8080/comment/post',
+        method: 'POST',
+        data: comment,
+        header: {
+          'content-type': 'application/json'
+        },
+        success(res) {
+          console.log(res);
+          let newPostList = that.data.posts.map(item => {
+            if (that.data.commentObjId == item.id) {
+              comment.commenter = app.globalData.USER;
+              if (!item.comments) {
+                item.comments = [];
+              }
+              item.comments.push(comment);
+            }
+            return item;
+          });
   
-        //重新赋值，更新数据列表
-        this.setData({
-          posts: newPostList
-        });
-      }else{
-        wx.showToast({
-          title: res.data.error_message,
-          icon:'none'
-        });
-        setTimeout(function () {
-          wx.hideLoading();
-        }, 1500)
-      }
-
-    });
+          // 重新赋值，更新数据列表
+          that.setData({
+            posts: newPostList,
+            commentContent: '', // 清空评论内容
+            canComment: true // 恢复可以评论状态
+          });
+  
+          wx.hideLoading(); // 隐藏加载提示
+        },
+        fail(error) {
+          console.error(error);
+          wx.hideLoading(); // 隐藏加载提示
+          wx.showToast({
+            title: '评论失败',
+            icon: 'none'
+          });
+          that.setData({ canComment: true }); // 恢复可以评论状态
+        }
+      });
+    }
   },
+  
 
   /**
    * 回复别人

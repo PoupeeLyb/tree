@@ -6,8 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Data;
 
 @Data
@@ -18,20 +16,17 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "post_id", referencedColumnName = "id")
-    private Post post;
+    @JsonProperty("post_id")
+    private Integer postId;
 
-    @ManyToOne
-    @JoinColumn(name = "commenter_id", referencedColumnName = "id")
-    private User commenter;
+    @JsonProperty("commenter_id")
+    private Integer commenterId;
 
+    @JsonProperty("content")
     private String content;
 
-    @JsonProperty("ref_comment")
-    @ManyToOne
-    @JoinColumn(name = "ref_comment_id", referencedColumnName = "id")
-    private Comment refComment;
+    @JsonProperty("ref_comment_id")
+    private Integer refCommentId;
 
     // Getters and setters
 }
