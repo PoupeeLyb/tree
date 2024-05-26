@@ -38,6 +38,7 @@ Page({
     userAvatarUrlSave:function(){
       if(this.data.userAvatarUrlDecide==1){
         app.globalData.USER.avatar=this.data.userAvatarUrl;
+        app.globalData.USERAVATARURL=this.data.userAvatarUrl;
         this.updateUser(app.globalData.USER);
       wx.showToast({
         title: '修改成功',
@@ -82,6 +83,7 @@ Page({
             console.log(res);
             if(res.data=='未找到该用户'){
               app.globalData.USER.username=that.data.username;
+              app.globalData.USERNAME=that.data.username;
               that.updateUser(app.globalData.USER);
               wx.showToast({
                 title: '修改成功',

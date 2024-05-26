@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "表白",
+  "navigationBarTitleText": "发表",
   "usingComponents": {
     "upload": "/components/upload/components/upload/upload"
   }

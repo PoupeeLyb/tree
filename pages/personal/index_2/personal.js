@@ -40,8 +40,10 @@ Page({
   onShow: function () {
     this.setData({
       username:app.globalData.USERNAME,
-      user:app.globalData.USER
+      user:app.globalData.USER,
+      userAvatarUrl:app.globalData.USERAVATARURL
     })
+    console.log(app.globalData.USERNAME);
     this.getPersonalInfo(app.globalData.USERNAME);
   },
    getPersonalInfo:function(e){
